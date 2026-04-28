@@ -1,66 +1,49 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VOIDSPIN • Quantum Entanglement</title>
-    <link rel="stylesheet" href="styles.css">
+<meta charset="UTF-8">
+<title>VOIDSPIN v2 • Quantum Cascade Engine</title>
+<link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div class="background-grid"></div>
-    
-    <div class="machine">
-        <div class="header">
-            <div>
-                <div class="title">VOIDSPIN</div>
-                <div class="subtitle">QUANTUM ENTANGLEMENT REELS</div>
-            </div>
-            <button id="infoBtn" class="info-btn">ⓘ</button>
-        </div>
 
-        <div class="stats">
-            <div>BALANCE: <span id="balance">5000</span></div>
-            <div>BET: <span id="betAmount">50</span></div>
-            <div>JACKPOT: <span id="jackpot" class="jackpot">12500</span></div>
-            <div>LAST WIN: <span id="lastWin">0</span></div>
-        </div>
+<div class="bg"></div>
 
-        <div class="reels-container">
-            <div class="reel" id="reel1"><div class="reel-inner" id="reel1-inner"></div></div>
-            <div class="reel" id="reel2"><div class="reel-inner" id="reel2-inner"></div></div>
-            <div class="reel" id="reel3"><div class="reel-inner" id="reel3-inner"></div></div>
-            <div class="reel" id="reel4"><div class="reel-inner" id="reel4-inner"></div></div>
-            <div class="reel" id="reel5"><div class="reel-inner" id="reel5-inner"></div></div>
+<div class="machine">
 
-            <div class="payline" id="line1"></div>
-            <div class="payline" id="line2"></div>
-            <div class="payline" id="line3"></div>
-        </div>
+  <div class="top">
+    <h1>VOIDSPIN v2</h1>
+    <button id="info">ⓘ</button>
+  </div>
 
-        <div class="controls">
-            <button onclick="changeBet(-10)">–10</button>
-            <button onclick="changeBet(10)">+10</button>
-            <button id="spinBtn" onclick="spin()">SPIN THE VOID</button>
-            <button onclick="toggleAutoSpin()">AUTO SPIN</button>
-        </div>
+  <div class="stats">
+    <div>💰 <span id="bal">5000</span></div>
+    <div>🎲 <span id="bet">50</span></div>
+    <div>🔥 <span id="jackpot">12500</span></div>
+  </div>
 
-        <div id="winMessage" class="win-message"></div>
-        <div class="history"><span id="historyText">Quantum field charged • Press SPIN</span></div>
-    </div>
+  <div class="reels" id="reels"></div>
 
-    <!-- Info Modal -->
-    <div id="infoModal" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="closeModal()">×</span>
-            <h2>VOIDSPIN — Rules & Probabilities</h2>
-            <p><strong>RTP:</strong> ~96.2% | <strong>Volatility:</strong> High</p>
-            <h3>Symbol Probabilities (weighted RNG)</h3>
-            <ul id="paytable"></ul>
-            <p>The game uses a proper weighted random system. Rare symbols like Quantum have lower probability but huge payouts and can trigger the Progressive Jackpot.</p>
-            <button onclick="closeModal()" class="modal-close-btn">CLOSE</button>
-        </div>
-    </div>
+  <div class="controls">
+    <button onclick="changeBet(-10)">-</button>
+    <button id="spin">SPIN</button>
+    <button onclick="auto()">AUTO</button>
+    <button onclick="holdMode()">HOLD</button>
+  </div>
 
-    <script src="script.js"></script>
+  <div id="win"></div>
+
+</div>
+
+<!-- BONUS WHEEL -->
+<div id="wheelModal">
+  <div class="wheelBox">
+    <h2>QUANTUM BONUS WHEEL</h2>
+    <div id="wheel"></div>
+    <button onclick="closeWheel()">CLOSE</button>
+  </div>
+</div>
+
+<script src="engine.js"></script>
 </body>
 </html>
