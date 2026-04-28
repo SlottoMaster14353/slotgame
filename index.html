@@ -1,166 +1,184 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>QUANTUM GALAXIES</title>
-<script src="https://cdn.tailwindcss.com"></script>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Exo+2:wght@400;600;700&display=swap');
-body{
-  font-family:'Exo 2',system-ui;
-  background:radial-gradient(circle at top,#141428,#05060f);
-  color:white;
-}
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QUANTUM GALAXIES</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Exo+2:wght@400;600;700&display=swap');
 
-.reel{
-  width:92px;
-  height:192px;
-  overflow:hidden;
-  border-radius:14px;
-  border:3px solid #67e8f9;
-  background:#0b1220;
-}
+    body {
+      font-family: 'Exo 2', system-ui;
+      background: linear-gradient(to bottom, #0a0a2e, #1a0033);
+    }
 
-.reel-strip{
-  display:flex;
-  flex-direction:column;
-  transition:transform 2.2s cubic-bezier(.2,.9,.2,1);
-}
+    .reel {
+      width: 92px;
+      height: 192px;
+      overflow: hidden;
+      background: #0f0f2e;
+      border: 6px solid #67e8f9;
+      border-radius: 14px;
+      box-shadow: 0 0 30px #22d3ee;
+      position: relative;
+    }
 
-.symbol{
-  height:64px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-size:40px;
-  border-bottom:1px solid #1f2a44;
-}
+    .reel-strip {
+      display: flex;
+      flex-direction: column;
+      transition: transform 2.4s cubic-bezier(0.23, 1, 0.32, 1);
+      will-change: transform;
+    }
 
-.modal{
-  display:none;
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,.85);
-  align-items:center;
-  justify-content:center;
-  z-index:50;
-}
-.modal-box{
-  width:360px;
-  background:#0f172a;
-  border:2px solid #67e8f9;
-  border-radius:16px;
-  padding:16px;
-}
+    .symbol {
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 42px;
+      border-bottom: 1px solid #334155;
+      background: rgba(15, 15, 46, 0.85);
+      position: relative;
+    }
 
-.btn{padding:6px 10px;border-radius:10px;background:#111827;border:1px solid #374151}
-.btn.active{border-color:#67e8f9}
+    .modal {
+      display:none;
+      position:fixed;
+      inset:0;
+      background:rgba(0,0,0,0.85);
+      align-items:center;
+      justify-content:center;
+      z-index:50;
+    }
 
-#wheel{
-  width:220px;height:220px;border-radius:50%;
-  border:6px solid #fbbf24;
-  margin:auto;
-}
-</style>
+    .modal-box {
+      width:340px;
+      background:#0f172a;
+      border:2px solid #67e8f9;
+      border-radius:16px;
+      padding:18px;
+    }
+
+    .btn {
+      padding:6px 10px;
+      border-radius:10px;
+      background:#111827;
+      border:1px solid #374151;
+    }
+
+    .btn.active {
+      border-color:#67e8f9;
+    }
+
+  </style>
 </head>
-<body class="min-h-screen py-6">
+<body class="min-h-screen py-8 text-white">
 
-<div class="max-w-6xl mx-auto px-4">
+<div class="max-w-5xl mx-auto px-4">
 
-<div class="flex justify-between mb-4">
-  <h1 class="text-4xl font-bold text-cyan-300">QUANTUM GALAXIES</h1>
-  <div class="text-right">
-    <div class="text-xs">BALANCE</div>
-    <div id="balance" class="text-2xl text-emerald-400">50000</div>
+  <!-- HEADER -->
+  <div class="flex justify-between items-center mb-6">
+    <h1 class="text-5xl font-bold bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+      QUANTUM GALAXIES
+    </h1>
+
+    <div class="text-right">
+      <div class="text-xs opacity-70">BALANCE</div>
+      <div id="balance" class="text-3xl font-bold text-emerald-400">50000</div>
+    </div>
   </div>
+
+  <!-- REELS -->
+  <div class="flex justify-center gap-4 mb-10 bg-slate-950/70 p-6 rounded-3xl" id="reels"></div>
+
+  <!-- BET CONTROLS -->
+  <div class="flex flex-col items-center gap-3 mb-3">
+
+    <div class="flex items-center gap-3">
+      <button onclick="changeBet(-50)" class="btn">-</button>
+
+      <div class="text-xl">BET: <span id="bet">100</span></div>
+
+      <button onclick="changeBet(50)" class="btn">+</button>
+    </div>
+
+    <div class="flex gap-2 flex-wrap justify-center">
+      <button onclick="setBet(50)" class="btn">50</button>
+      <button onclick="setBet(100)" class="btn">100</button>
+      <button onclick="setBet(250)" class="btn">250</button>
+      <button onclick="setBet(500)" class="btn">500</button>
+      <button onclick="setBet(1000)" class="btn">1000</button>
+    </div>
+
+    <input id="customBet" type="number" placeholder="custom bet" class="text-black px-2 py-1 rounded" />
+
+  </div>
+
+  <!-- CONTROLS -->
+  <div class="flex justify-center gap-4 items-center">
+
+    <button onclick="spin()" id="spinBtn" class="bg-pink-600 px-10 py-3 rounded-xl text-xl font-bold">
+      SPIN
+    </button>
+
+    <button onclick="toggleAuto()" id="autoBtn" class="bg-yellow-500 px-4 py-2 rounded-xl text-black">
+      AUTO: OFF
+    </button>
+
+    <button onclick="toggleTurbo()" id="turboBtn" class="bg-cyan-500 px-4 py-2 rounded-xl text-black">
+      TURBO: OFF
+    </button>
+
+    <button onclick="showInfo()" class="w-12 h-12 bg-slate-700 rounded-xl">
+      <i class="fas fa-info"></i>
+    </button>
+
+  </div>
+
+  <div id="msg" class="text-center mt-4 h-6"></div>
+
 </div>
 
-<!-- ADMIN BUTTON -->
-<div class="mb-3">
-  <button onclick="openAdmin()" class="btn text-yellow-300">ADMIN PANEL</button>
-</div>
-
-<!-- REELS -->
-<div class="flex justify-center gap-4 mb-6" id="reels"></div>
-
-<!-- BET -->
-<div class="flex flex-col items-center gap-2">
-<div class="flex gap-2 items-center">
-<button class="btn" onclick="changeBet(-50)">-</button>
-<div>BET: <span id="bet">100</span></div>
-<button class="btn" onclick="changeBet(50)">+</button>
-</div>
-
-<div class="flex gap-2 flex-wrap justify-center">
-<button class="btn" onclick="setBet(25)">25</button>
-<button class="btn" onclick="setBet(50)">50</button>
-<button class="btn" onclick="setBet(100)">100</button>
-<button class="btn" onclick="setBet(500)">500</button>
-</div>
-
-<input id="customBet" type="number" class="text-black px-2 py-1 rounded" placeholder="custom bet">
-</div>
-
-<div class="flex justify-center gap-4 mt-4">
-<button onclick="spin()" class="btn text-pink-300">SPIN</button>
-<button onclick="toggleAuto()" class="btn">AUTO</button>
-<button onclick="toggleTurbo()" class="btn">TURBO</button>
-</div>
-
-<div id="msg" class="text-center mt-3"></div>
-
-</div>
-
-<!-- ADMIN MODAL -->
-<div id="adminModal" class="modal">
+<!-- INFO -->
+<div id="infoModal" class="modal">
   <div class="modal-box text-center">
-    <div id="loginBox">
-      <h2 class="text-cyan-300 mb-2">ADMIN LOGIN</h2>
-      <input id="adminPin" placeholder="PIN" class="text-black px-2 py-1 rounded w-full mb-2">
-      <button onclick="checkAdmin()" class="btn w-full">ENTER</button>
-    </div>
-
-    <div id="adminPanel" style="display:none">
-      <h2 class="text-yellow-300 mb-2">ADMIN PANEL</h2>
-      <div class="text-sm mb-2">RTP CONTROL</div>
-      <input id="rtp" type="range" min="85" max="98" value="92" oninput="setRTP()">
-      <div>RTP: <span id="rtpVal">92</span>%</div>
-      <button onclick="closeAdmin()" class="btn mt-3">CLOSE</button>
-    </div>
+    <h2 class="text-cyan-300 text-xl mb-2">GAME INFO</h2>
+    <p class="text-sm mb-2">5x3 Reels • 243 Ways • Weighted RNG</p>
+    <p class="text-xs text-gray-400">Simulation slot system</p>
+    <button onclick="closeInfo()" class="bg-red-500 px-4 py-2 rounded mt-3">CLOSE</button>
   </div>
 </div>
 
 <script>
+const symbols=['⭐','🌙','🪐','🚀','💎','🔥','🌌'];
+
 let balance=50000;
 let bet=100;
 let reels=[];
 let spinning=false;
 let auto=false;
 let turbo=false;
-let rtp=92;
-
-const symbols=['⭐','🌙','🪐','🚀','💎','🔥','🌌'];
+let autoLoop=null;
 
 function rand(){
-  let roll=Math.random()*100;
-  if(roll>rtp) return '💀';
   return symbols[Math.floor(Math.random()*symbols.length)];
 }
 
 function create(){
-  let c=document.getElementById('reels');
+  const c=document.getElementById('reels');
   c.innerHTML='';
   reels=[];
 
   for(let i=0;i<5;i++){
     let reel=document.createElement('div');
     reel.className='reel';
+
     let strip=document.createElement('div');
     strip.className='reel-strip';
 
-    for(let j=0;j<18;j++){
+    for(let j=0;j<20;j++){
       let d=document.createElement('div');
       d.className='symbol';
       d.textContent=rand();
@@ -175,14 +193,15 @@ function create(){
 
 function setBet(v){
   if(spinning) return;
-  let c=document.getElementById('customBet').value;
-  bet=c?parseInt(c):v;
+  let custom=document.getElementById('customBet').value;
+  if(custom) bet=parseInt(custom);
+  else bet=v;
   update();
 }
 
 function changeBet(v){
   if(spinning) return;
-  bet=Math.max(25,bet+v);
+  bet=Math.max(50,bet+v);
   update();
 }
 
@@ -200,6 +219,8 @@ async function spin(){
   balance-=bet;
   update();
 
+  const speed = turbo ? 1200 : 2200;
+
   let grid=[];
   for(let i=0;i<5;i++){
     let col=[];
@@ -209,7 +230,7 @@ async function spin(){
 
   reels.forEach(r=>r.style.transform='translateY(-520px)');
 
-  await new Promise(r=>setTimeout(r,turbo?1200:2200));
+  await new Promise(r=>setTimeout(r,speed));
 
   reels.forEach((r,i)=>{
     r.style.transition='none';
@@ -224,32 +245,32 @@ async function spin(){
     });
   });
 
-  msg(Math.random()<0.15?'FEATURE SPIN 🎡':'SPIN DONE');
+  msg(Math.random()<0.15 ? 'FEATURE SPIN 🎡' : 'RESULT');
 
   spinning=false;
+
   if(auto) setTimeout(spin,500);
 }
 
-function toggleAuto(){auto=!auto; if(auto) spin();}
-function toggleTurbo(){turbo=!turbo;}
-
-function openAdmin(){document.getElementById('adminModal').style.display='flex';}
-function closeAdmin(){document.getElementById('adminModal').style.display='none';}
-
-function checkAdmin(){
-  let pin=document.getElementById('adminPin').value;
-  if(pin==='3566'||pin==='ACFD'){
-    document.getElementById('loginBox').style.display='none';
-    document.getElementById('adminPanel').style.display='block';
-  }
+function toggleAuto(){
+  auto=!auto;
+  document.getElementById('autoBtn').textContent='AUTO: '+(auto?'ON':'OFF');
+  if(auto) spin();
 }
 
-function setRTP(){
-  rtp=document.getElementById('rtp').value;
-  document.getElementById('rtpVal').textContent=rtp;
+function toggleTurbo(){
+  turbo=!turbo;
+  document.getElementById('turboBtn').textContent='TURBO: '+(turbo?'ON':'OFF');
 }
 
-window.onload=create;
+function showInfo(){
+  document.getElementById('infoModal').style.display='flex';
+}
+function closeInfo(){
+  document.getElementById('infoModal').style.display='none';
+}
+
+window.onload=()=>{create();update();};
 </script>
 
 </body>
