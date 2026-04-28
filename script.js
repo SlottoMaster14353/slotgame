@@ -1,3 +1,5 @@
+// script.js - FIXED VERSION
+
 let balance = 5000;
 let huffBet = 2.50;
 let piggyBet = 2.00;
@@ -6,18 +8,28 @@ const huffSymbols = ["🐷","🐖","🛠️","👷","🏠","🪚","A","K","Q","J
 
 function updateAllBalances() {
   const formatted = "$" + balance.toFixed(2);
-  document.getElementById("lobby-balance").textContent = formatted;
-  if (document.getElementById("huff-cash")) document.getElementById("huff-cash").textContent = formatted;
-  if (document.getElementById("piggy-cash")) document.getElementById("piggy-cash").textContent = formatted;
+  const lobbyBal = document.getElementById("lobby-balance");
+  if (lobbyBal) lobbyBal.textContent = formatted;
+  
+  const huffCash = document.getElementById("huff-cash");
+  if (huffCash) huffCash.textContent = formatted;
+  
+  const piggyCash = document.getElementById("piggy-cash");
+  if (piggyCash) piggyCash.textContent = formatted;
 }
 
-function createReels(containerId, count = 5) {
+function createReels(containerId) {
   const container = document.getElementById(containerId);
+  if (!container) return;
   container.innerHTML = '';
-  for (let i = 0; i < count; i++) {
+  for (let i = 0; i < 5; i++) {
     const reel = document.createElement("div");
     reel.className = "reel";
-    reel.innerHTML = `<div class="symbol">🐷</div><div class="symbol">🛠️</div><div class="symbol">🏠</div>`;
+    reel.innerHTML = `
+      <div class="symbol">🐷</div>
+      <div class="symbol">🛠️</div>
+      <div class="symbol">🏠</div>
+    `;
     container.appendChild(reel);
   }
 }
@@ -28,7 +40,7 @@ window.enterGame = function(game) {
 
   if (game === 'huff') {
     createReels('huff-reels');
-  } else {
+  } else if (game === 'piggy') {
     createReels('piggy-reels');
   }
 };
@@ -39,67 +51,81 @@ window.goHome = function() {
   updateAllBalances();
 };
 
-// Huff N Puff Spin
+// ==================== HUFF N PUFF ====================
 window.spinHuff = function() {
-  if (balance < huffBet) return alert("Not enough credits!");
+  if (balance < huffBet) {
+    alert("Not enough credits!");
+    return;
+  }
+
   balance -= huffBet;
   updateAllBalances();
+  document.getElementById("huff-win").textContent = "$0.00";
 
   const symbols = document.querySelectorAll('#huff-reels .symbol');
-  let spinsLeft = 30;
+  let spinsLeft = 32;
 
   const interval = setInterval(() => {
-    symbols.forEach(s => s.textContent = huffSymbols[Math.floor(Math.random()*huffSymbols.length)]);
+    symbols.forEach(s => {
+      s.textContent = huffSymbols[Math.floor(Math.random() * huffSymbols.length)];
+    });
     spinsLeft--;
     if (spinsLeft <= 0) {
       clearInterval(interval);
       finishHuffSpin();
     }
-  }, 60);
+  }, 65);
 };
 
 function finishHuffSpin() {
-  const win = Math.random() > 0.6 ? huffBet * (10 + Math.random() * 45) : 0;
+  const winAmount = Math.random() > 0.58 ? huffBet * (12 + Math.random() * 50) : 0;
 
-  if (win > 0) {
-    balance += win;
-    document.getElementById("huff-win").textContent = "$" + win.toFixed(2);
+  if (winAmount > 0) {
+    balance += winAmount;
+    document.getElementById("huff-win").textContent = "$" + winAmount.toFixed(2);
     updateAllBalances();
 
+    // Glowing win effect
     document.querySelectorAll('#huff-reels .symbol').forEach(s => {
-      if (Math.random() > 0.4) s.classList.add('win-glow');
+      if (Math.random() > 0.45) s.classList.add('win-glow');
     });
 
-    // Trigger bonus chance
-    if (Math.random() < 0.28) {
-      setTimeout(() => {
-        document.getElementById("wheel-modal").classList.remove("hidden");
-        document.getElementById("wheel-result").innerHTML = "HARD HAT FREE SPINS TRIGGERED!<br>You won $450!";
-      }, 600);
+    // Random chance to trigger Buzz Saw Wheel (only after a win)
+    if (Math.random() < 0.22) {
+      setTimeout(triggerBuzzSawWheel, 800);
     }
   }
-  setTimeout(() => document.getElementById("huffSpinBtn").disabled = false, 900);
+
+  // Re-enable spin button
+  setTimeout(() => {
+    const btn = document.getElementById("huffSpinBtn");
+    if (btn) btn.disabled = false;
+  }, 600);
 }
 
-window.changeBet = function(delta, game) {
-  if (game === 'huff') {
-    huffBet = Math.max(0.5, Math.min(20, huffBet + delta));
-    document.getElementById("huff-bet").textContent = "$" + huffBet.toFixed(2);
-  }
-};
+function triggerBuzzSawWheel() {
+  document.getElementById("wheel-result").innerHTML = 
+    "🎡 BUZZ SAW WHEEL!<br>You won Hard Hat Free Spins + $350!";
+  document.getElementById("wheel-modal").classList.remove("hidden");
+}
 
-// Piggy Bank (simple Hold & Win feel)
+// ==================== PIGGY BANK ====================
 window.spinPiggy = function() {
-  if (balance < piggyBet) return alert("Not enough credits!");
+  if (balance < piggyBet) {
+    alert("Not enough credits!");
+    return;
+  }
+
   balance -= piggyBet;
   updateAllBalances();
+  document.getElementById("piggy-win").textContent = "$0.00";
 
   const symbols = document.querySelectorAll('#piggy-reels .symbol');
   symbols.forEach(s => {
     s.textContent = Math.random() > 0.6 ? "💰" : ["🐷","🍒","🪙","🏦"][Math.floor(Math.random()*4)];
   });
 
-  const win = Math.random() > 0.55 ? piggyBet * (12 + Math.random()*30) : 0;
+  const win = Math.random() > 0.5 ? piggyBet * (15 + Math.random()*35) : 0;
   if (win > 0) {
     balance += win;
     document.getElementById("piggy-win").textContent = "$" + win.toFixed(2);
@@ -107,7 +133,7 @@ window.spinPiggy = function() {
   }
 };
 
-// Shop
+// ==================== SHOP & MODALS ====================
 window.showShop = function() {
   document.getElementById("shop-modal").classList.remove("hidden");
 };
@@ -115,7 +141,7 @@ window.showShop = function() {
 window.addCredits = function(amount) {
   balance += amount;
   updateAllBalances();
-  alert(`Added $${amount} fake credits!`);
+  alert(`✅ Added $${amount} fake credits!`);
 };
 
 window.closeShop = function() {
@@ -126,6 +152,10 @@ window.closeWheelModal = function() {
   document.getElementById("wheel-modal").classList.add("hidden");
 };
 
-// Initialize
-updateAllBalances();
-createReels('huff-reels');   // pre-load
+// ==================== INIT ====================
+window.onload = function() {
+  updateAllBalances();
+  // Pre-create reels so they are ready
+  createReels('huff-reels');
+  createReels('piggy-reels');
+};
