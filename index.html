@@ -1,206 +1,269 @@
-<!DOCTYPE html>
+=<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>QUANTUM GALAXIES FIXED</title>
-
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Neon Timber Slots</title>
 <script src="https://cdn.tailwindcss.com"></script>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Exo+2:wght@400;600;700&display=swap');
-
-body {
-  font-family: 'Exo 2', system-ui;
-  background: linear-gradient(to bottom, #0a0a2e, #1a0033);
+body{
+  font-family: system-ui;
+  background: radial-gradient(circle at top,#1a1a1a,#05060f);
+  color:white;
 }
 
-.reel {
-  width: 92px;
-  height: 198px;
-  overflow: hidden;
-  background: #0f0f2e;
-  border: 6px solid #67e8f9;
-  border-radius: 14px;
-  box-shadow: 0 0 30px #22d3ee;
-  position: relative;
+/* rustic casino inspired UI (NOT exact copy of any game) */
+.glass{
+  background: linear-gradient(145deg,#1f2937,#0b1220);
+  border:2px solid #fbbf24;
+  box-shadow:0 0 25px rgba(251,191,36,.15);
+  border-radius:18px;
 }
 
-.reel-strip {
-  display: flex;
-  flex-direction: column;
-  transition: transform 2.6s cubic-bezier(0.25, 1, 0.3, 1);
-  will-change: transform;
+.reels-wrap{
+  display:flex;
+  justify-content:center;
+  gap:6px;
+  padding:12px;
 }
 
-.symbol {
-  height: 66px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 44px;
-  border-bottom: 2px solid #334155;
-  background: rgba(15, 15, 46, 0.8);
+.reel{
+  width:68px;
+  height:180px;
+  overflow:hidden;
+  border-radius:12px;
+  border:2px solid #fbbf24;
+  background:#0b1220;
 }
 
-.locked::after {
-  content: '';
-  position: absolute;
-  inset: 4px;
-  border: 4px solid #c026d3;
-  border-radius: 10px;
+.reel-strip{
+  display:flex;
+  flex-direction:column;
+  transition:transform 2s cubic-bezier(.2,.9,.2,1);
 }
 
-#infoModal {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.85);
-  display: none;
-  align-items: center;
-  justify-content: center;
-  z-index: 9999;
+.symbol{
+  height:60px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:32px;
+  border-bottom:1px solid #1f2a44;
 }
 
-.modal-box {
-  background: #0f172a;
-  border: 3px solid #67e8f9;
-  padding: 25px;
-  border-radius: 20px;
-  width: 320px;
-  text-align: center;
+.bet-btn{
+  padding:6px 10px;
+  background:#111827;
+  border:1px solid #374151;
+  border-radius:10px;
+}
+
+.bet-btn.active{
+  border-color:#fbbf24;
+  box-shadow:0 0 10px #fbbf24;
+}
+
+.modal{
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.8);
+  align-items:center;
+  justify-content:center;
+}
+
+.modal-box{
+  width:340px;
+  background:#0f172a;
+  border:2px solid #fbbf24;
+  border-radius:16px;
+  padding:18px;
 }
 </style>
 </head>
+<body>
 
-<body class="text-white">
+<!-- TOP BAR -->
+<div class="flex justify-between items-center p-4">
+  <div class="text-yellow-400 font-bold text-xl">NEON TIMBER SLOTS</div>
 
-<div class="max-w-5xl mx-auto p-6">
-
-<h1 class="text-4xl font-bold text-cyan-300 mb-6">QUANTUM GALAXIES FIXED</h1>
-
-<!-- REELS -->
-<div class="flex gap-4 justify-center mb-6" id="reels"></div>
-
-<!-- CONTROLS -->
-<button onclick="spin()" id="spinBtn" class="bg-pink-600 px-10 py-4 rounded-xl">SPIN</button>
-
-<button onclick="showInfo()" class="ml-4 bg-cyan-600 px-6 py-4 rounded-xl">
-<i class="fas fa-info"></i>
-</button>
-
-<div id="message" class="mt-4 text-xl"></div>
-
+  <div class="text-right glass px-4 py-2">
+    <div class="text-xs text-gray-300">BALANCE</div>
+    <div id="balance" class="text-2xl text-green-400 font-bold">50000</div>
+  </div>
 </div>
 
-<!-- INFO MODAL -->
-<div id="infoModal">
-  <div class="modal-box">
-    <h2 class="text-2xl mb-3 text-cyan-300">Game Info</h2>
-    <p class="text-sm mb-4">
-      5 reels • 3 rows • 243 ways<br>
-      6+ orbs trigger bonus
+<!-- REELS -->
+<div class="reels-wrap glass mx-4">
+  <div id="reels"></div>
+</div>
+
+<!-- BET UI -->
+<div class="flex justify-center gap-2 mt-4 flex-wrap" id="bets"></div>
+
+<div class="flex justify-center items-center gap-6 mt-4">
+  <div>BET: <span id="bet">100</span></div>
+
+  <button onclick="spin()" class="px-10 py-3 bg-yellow-500 text-black font-bold rounded-xl">
+    SPIN
+  </button>
+
+  <button onclick="openInfo()" class="w-10 h-10 bg-gray-700 rounded-xl">
+    <i class="fas fa-info"></i>
+  </button>
+</div>
+
+<div id="msg" class="text-center mt-3 h-6"></div>
+
+<!-- INFO -->
+<div id="info" class="modal">
+  <div class="modal-box text-sm">
+    <h2 class="text-yellow-400 text-lg mb-2">GAME INFO</h2>
+
+    <p class="text-gray-300 mb-2">
+      5x3 Reels • 243 Ways • Weighted RNG
     </p>
-    <button onclick="closeInfo()" class="bg-red-500 px-4 py-2 rounded">CLOSE</button>
+
+    <p class="text-gray-400 text-xs mb-2">
+      DISCLAIMER: Simulation game with weighted odds system.
+    </p>
+
+    <button onclick="closeInfo()" class="bg-red-500 px-3 py-1 rounded">CLOSE</button>
   </div>
 </div>
 
 <script>
-const reelStrip = ['⭐','🌟','🌙','🪐','☄️','🚀','🌌','🛸','🔥','💎','🎇','⚙️'];
+const symbols=[
+ {s:"⭐",w:30,v:2},
+ {s:"🌙",w:25,v:3},
+ {s:"🪐",w:20,v:5},
+ {s:"🚀",w:12,v:8},
+ {s:"💎",w:8,v:15},
+ {s:"🔥",w:5,v:25}
+];
 
-let reels = [];
-let isSpinning = false;
+let balance=50000;
+let bet=100;
+let reels=[];
+let spinning=false;
 
-function createReels(){
-  const container = document.getElementById('reels');
-  container.innerHTML = '';
-  reels = [];
-
-  for(let i=0;i<5;i++){
-    const reel = document.createElement('div');
-    reel.className = 'reel';
-
-    const strip = document.createElement('div');
-    strip.className = 'reel-strip';
-
-    for(let j=0;j<20;j++){
-      const s = document.createElement('div');
-      s.className = 'symbol';
-      s.textContent = reelStrip[Math.floor(Math.random()*reelStrip.length)];
-      strip.appendChild(s);
-    }
-
-    reel.appendChild(strip);
-    container.appendChild(reel);
-    reels.push(strip);
-  }
+function weighted(){
+ let pool=[];
+ symbols.forEach(o=>{for(let i=0;i<o.w;i++)pool.push(o);});
+ return pool[Math.floor(Math.random()*pool.length)];
 }
 
-function getSymbol(){
-  return reelStrip[Math.floor(Math.random()*reelStrip.length)];
+function init(){
+ const r=document.getElementById("reels");
+ r.innerHTML="";
+ reels=[];
+
+ for(let i=0;i<5;i++){
+  let reel=document.createElement("div");
+  reel.className="reel";
+
+  let strip=document.createElement("div");
+  strip.className="reel-strip";
+
+  for(let j=0;j<18;j++){
+   let d=document.createElement("div");
+   d.className="symbol";
+   d.textContent=weighted().s;
+   strip.appendChild(d);
+  }
+
+  reel.appendChild(strip);
+  r.appendChild(reel);
+  reels.push(strip);
+ }
+
+ createBets();
+ update();
+}
+
+function createBets(){
+ const bets=[25,50,100,500,1000,2000];
+ const box=document.getElementById("bets");
+ box.innerHTML="";
+
+ bets.forEach(b=>{
+  let btn=document.createElement("button");
+  btn.textContent=b;
+  btn.className="bet-btn";
+  btn.onclick=()=>{bet=b;update();};
+  box.appendChild(btn);
+ });
+}
+
+function update(){
+ document.getElementById("balance").textContent=balance;
+ document.getElementById("bet").textContent=bet;
+}
+
+function countWin(grid){
+ let win=0;
+ for(let row=0;row<3;row++){
+  let sym=grid[0][row];
+  let streak=1;
+
+  for(let col=1;col<5;col++){
+   if(grid[col][row].s===sym.s) streak++;
+   else break;
+  }
+
+  if(streak>=3) win+=sym.v*streak;
+ }
+ return win;
 }
 
 async function spin(){
-  if(isSpinning) return;
-  isSpinning = true;
+ if(spinning||balance<bet)return;
+ spinning=true;
+ balance-=bet;
+ update();
+ msg("Spinning...");
 
-  document.getElementById('message').textContent = "SPINNING...";
+ let grid=[];
+ for(let c=0;c<5;c++){
+  let col=[];
+  for(let r=0;r<3;r++) col.push(weighted());
+  grid.push(col);
+ }
 
-  const results = [];
+ reels.forEach(r=>r.style.transform="translateY(-400px)");
 
-  for(let r=0;r<5;r++){
-    const col = [];
-    for(let i=0;i<3;i++){
-      col.push(getSymbol());
-    }
-    results.push(col);
-  }
+ await new Promise(r=>setTimeout(r,2000));
 
-  // ANIMATE FIRST
-  reels.forEach((strip, i)=>{
-    strip.style.transition = "transform 2.2s ease-out";
-    strip.style.transform = `translateY(-600px)`;
+ reels.forEach((r,i)=>{
+  r.style.transition="none";
+  r.style.transform="translateY(0)";
+  r.innerHTML="";
+
+  grid[i].forEach(o=>{
+   let d=document.createElement("div");
+   d.className="symbol";
+   d.textContent=o.s;
+   r.appendChild(d);
   });
+ });
 
-  await new Promise(r=>setTimeout(r,2200));
+ let win=countWin(grid);
+ if(win>0){
+  balance+=win*bet;
+  msg("WIN +"+win);
+ } else msg("NO WIN");
 
-  // RESET + REBUILD (FIXED PART)
-  reels.forEach((strip, r)=>{
-    strip.style.transition = "none";
-    strip.style.transform = "translateY(0px)";
-    strip.innerHTML = "";
-
-    for(let i=0;i<3;i++){
-      const d = document.createElement('div');
-      d.className = 'symbol';
-      d.textContent = results[r][i];
-      strip.appendChild(d);
-    }
-
-    // fill extra for smooth scroll
-    for(let i=0;i<10;i++){
-      const d = document.createElement('div');
-      d.className = 'symbol';
-      d.textContent = getSymbol();
-      strip.appendChild(d);
-    }
-  });
-
-  document.getElementById('message').textContent = "RESULTS READY";
-  isSpinning = false;
+ update();
+ spinning=false;
 }
 
-function showInfo(){
-  document.getElementById('infoModal').style.display = 'flex';
-}
+function msg(t){document.getElementById("msg").textContent=t;}
 
-function closeInfo(){
-  document.getElementById('infoModal').style.display = 'none';
-}
+function openInfo(){document.getElementById("info").style.display="flex";}
+function closeInfo(){document.getElementById("info").style.display="none";}
 
-window.onload = ()=>{
-  createReels();
-};
+window.onload=init;
 </script>
 
 </body>
