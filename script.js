@@ -1,150 +1,279 @@
-// script.js - FINAL CLEAN VERSION (No modal on load)
+// VOIDSPIN Quantum Entanglement - script.js
+const symbols = [
+    { emoji: '⚛️', name: 'Quantum',     value: 80,  color: '#22d3ee', prob: 0.09 },
+    { emoji: '🌀', name: 'Singularity', value: 45,  color: '#c026d3', prob: 0.13 },
+    { emoji: '🌌', name: 'Nebula',      value: 28,  color: '#f472b6', prob: 0.16 },
+    { emoji: '🔮', name: 'Oracle',      value: 22,  color: '#67e8f9', prob: 0.18 },
+    { emoji: '⚡', name: 'Pulse',       value: 16,  color: '#4ade80', prob: 0.20 },
+    { emoji: '🌠', name: 'Voidstar',    value: 12,  color: '#eab308', prob: 0.24 }
+];
 
 let balance = 5000;
-let huffBet = 2.50;
-let piggyBet = 2.00;
+let bet = 50;
+let jackpot = 12500;
+let isSpinning = false;
+let autoSpinning = false;
 
-const huffSymbols = ["🐷","🐖","🛠️","👷","🏠","🪚","A","K","Q","J","10"];
+let reels = [];
+let currentResults = [];
 
-function updateAllBalances() {
-  const formatted = "$" + balance.toFixed(2);
-  document.getElementById("lobby-balance").textContent = formatted;
-  
-  if (document.getElementById("huff-cash")) 
-    document.getElementById("huff-cash").textContent = formatted;
-  if (document.getElementById("piggy-cash")) 
-    document.getElementById("piggy-cash").textContent = formatted;
-}
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
-function createReels(containerId) {
-  const container = document.getElementById(containerId);
-  if (!container) return;
-  container.innerHTML = '';
-  for (let i = 0; i < 5; i++) {
-    const reel = document.createElement("div");
-    reel.className = "reel";
-    reel.innerHTML = `
-      <div class="symbol">🐷</div>
-      <div class="symbol">🛠️</div>
-      <div class="symbol">🏠</div>
-    `;
-    container.appendChild(reel);
-  }
-}
+function playSound(type) {
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
 
-// Navigation
-window.enterGame = function(game) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById(game + '-game').classList.add('active');
-
-  if (game === 'huff') createReels('huff-reels');
-  if (game === 'piggy') createReels('piggy-reels');
-};
-
-window.goHome = function() {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById('lobby').classList.add('active');
-  updateAllBalances();
-};
-
-// Huff N Puff Spin
-window.spinHuff = function() {
-  if (balance < huffBet) return alert("Not enough credits!");
-
-  balance -= huffBet;
-  updateAllBalances();
-  document.getElementById("huff-win").textContent = "$0.00";
-
-  const symbols = document.querySelectorAll('#huff-reels .symbol');
-  let spinsLeft = 32;
-
-  const interval = setInterval(() => {
-    symbols.forEach(s => {
-      s.textContent = huffSymbols[Math.floor(Math.random() * huffSymbols.length)];
-    });
-    spinsLeft--;
-    if (spinsLeft <= 0) {
-      clearInterval(interval);
-      finishHuffSpin();
+    if (type === 'spin') {
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(180, audioCtx.currentTime);
+        gain.gain.value = 0.25;
+        osc.start();
+        setTimeout(() => { osc.stop(); }, 600);
+    } else if (type === 'stop') {
+        osc.type = 'square';
+        osc.frequency.setValueAtTime(420, audioCtx.currentTime);
+        gain.gain.value = 0.15;
+        osc.start();
+        setTimeout(() => osc.stop(), 80);
+    } else if (type === 'win') {
+        gain.gain.value = 0.4;
+        for (let i = 0; i < 6; i++) {
+            setTimeout(() => {
+                osc.frequency.setValueAtTime(680 + i*120, audioCtx.currentTime);
+                osc.start();
+                setTimeout(() => osc.stop(), 120);
+            }, i*80);
+        }
+    } else if (type === 'jackpot') {
+        // Simple rising fanfare
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(300, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(1200, audioCtx.currentTime + 1.8);
+        gain.gain.value = 0.35;
+        osc.start();
+        setTimeout(() => osc.stop(), 2000);
+    } else if (type === 'click') {
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(880, audioCtx.currentTime);
+        gain.gain.value = 0.1;
+        osc.start();
+        setTimeout(() => osc.stop(), 40);
     }
-  }, 65);
-};
+}
 
-function finishHuffSpin() {
-  const winAmount = Math.random() > 0.58 ? huffBet * (12 + Math.random() * 50) : 0;
+function createReelHTML(index) {
+    const inner = document.getElementById(`reel${index+1}-inner`);
+    inner.innerHTML = '';
+    for (let i = 0; i < 35; i++) {
+        const sym = symbols[Math.floor(Math.random() * symbols.length)];
+        const div = document.createElement('div');
+        div.className = 'symbol';
+        div.style.color = sym.color;
+        div.innerHTML = sym.emoji;
+        inner.appendChild(div);
+    }
+}
 
-  if (winAmount > 0) {
+function initReels() {
+    reels = [];
+    for (let i = 0; i < 5; i++) {
+        createReelHTML(i);
+        reels.push(document.getElementById(`reel${i+1}-inner`));
+    }
+}
+
+function weightedRandomSymbol() {
+    let r = Math.random();
+    for (let sym of symbols) {
+        if (r < sym.prob) return sym;
+        r -= sym.prob;
+    }
+    return symbols[symbols.length-1];
+}
+
+async function spin() {
+    if (isSpinning || balance < bet) return;
+    isSpinning = true;
+    document.getElementById('spinBtn').disabled = true;
+    playSound('click');
+
+    balance -= bet;
+    jackpot += Math.floor(bet * 0.03); // jackpot grows
+    updateUI();
+
+    currentResults = Array(5).fill().map(() => weightedRandomSymbol());
+
+    // Staggered spins
+    const promises = [];
+    for (let i = 0; i < 5; i++) {
+        promises.push(spinSingleReel(i, 450 + i * 160));
+    }
+    await Promise.all(promises);
+
+    const winAmount = calculateWin(currentResults);
+    if (winAmount > 0) {
+        balance += winAmount;
+        showWin(winAmount);
+        highlightPaylines();
+        if (isJackpotWin(currentResults)) {
+            jackpotWin();
+        } else {
+            playSound('win');
+        }
+    }
+
+    updateUI();
+    document.getElementById('spinBtn').disabled = false;
+    isSpinning = false;
+
+    if (autoSpinning && balance >= bet) setTimeout(spin, 1100);
+}
+
+function spinSingleReel(index, delay) {
+    return new Promise(resolve => {
+        const reel = reels[index];
+        let pos = 0;
+        let speed = 52;
+
+        playSound('spin');
+
+        const interval = setInterval(() => {
+            pos -= speed;
+            reel.style.transform = `translateY(${pos}px)`;
+            if (speed > 9) speed *= 0.94;
+        }, 16);
+
+        setTimeout(() => {
+            clearInterval(interval);
+            const targetY = -(currentResults[index].emoji.charCodeAt(0) % 3 * 140 + 40); // visual snap
+            reel.style.transition = 'transform 320ms cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+            reel.style.transform = `translateY(${targetY}px)`;
+            playSound('stop');
+            setTimeout(resolve, 380);
+        }, delay);
+    });
+}
+
+function calculateWin(results) {
+    let win = 0;
+    const counts = {};
+    results.forEach(s => counts[s.name] = (counts[s.name]||0) + 1);
+
+    Object.keys(counts).forEach(key => {
+        const c = counts[key];
+        if (c >= 3) {
+            const sym = results.find(s => s.name === key);
+            win += sym.value * bet * (c - 2) * 1.6;
+        }
+    });
+
+    if (new Set(results.map(r => r.name)).size === 5) win += bet * 4;
+    return Math.floor(win);
+}
+
+function isJackpotWin(results) {
+    return results.every(s => s.name === 'Quantum');
+}
+
+function jackpotWin() {
+    const winAmount = jackpot;
     balance += winAmount;
-    document.getElementById("huff-win").textContent = "$" + winAmount.toFixed(2);
-    updateAllBalances();
-
-    // Glow winning symbols
-    document.querySelectorAll('#huff-reels .symbol').forEach(s => {
-      if (Math.random() > 0.4) s.classList.add('win-glow');
-    });
-
-    // Trigger wheel only after a real win (25% chance)
-    if (Math.random() < 0.25) {
-      setTimeout(() => {
-        document.getElementById("wheel-result").innerHTML = "🎡 BUZZ SAW WHEEL!<br>You won Hard Hat Free Spins + $350!";
-        document.getElementById("wheel-modal").classList.remove("hidden");
-      }, 800);
-    }
-  }
-
-  setTimeout(() => {
-    const btn = document.getElementById("huffSpinBtn");
-    if (btn) btn.disabled = false;
-  }, 800);
+    document.getElementById('winMessage').textContent = `JACKPOT!!! +${winAmount}`;
+    playSound('jackpot');
+    showWin(winAmount, true);
+    jackpot = 12500; // reset after hit
 }
 
-// Piggy Bank Spin
-window.spinPiggy = function() {
-  if (balance < piggyBet) return alert("Not enough credits!");
+function showWin(amount, isJackpot = false) {
+    const msg = document.getElementById('winMessage');
+    msg.textContent = isJackpot ? `MASSIVE JACKPOT +${amount}` : `+${amount}`;
+    msg.style.opacity = 1;
+    msg.style.color = isJackpot ? '#facc15' : '#4ade80';
 
-  balance -= piggyBet;
-  updateAllBalances();
-  document.getElementById("piggy-win").textContent = "$0.00";
+    // Particle burst
+    for (let i = 0; i < 22; i++) {
+        setTimeout(() => {
+            const p = document.createElement('div');
+            p.style.position = 'fixed';
+            p.style.left = Math.random()*100 + 'vw';
+            p.style.top = '-60px';
+            p.style.fontSize = '2.4rem';
+            p.style.zIndex = 999;
+            p.textContent = '✨🌠⚛️🌀'[Math.floor(Math.random()*4)];
+            document.body.appendChild(p);
+            setTimeout(() => {
+                p.style.transition = 'transform 2.4s ease-out, opacity 2.4s';
+                p.style.transform = `translateY(${window.innerHeight+300}px) rotate(${Math.random()*1200-600}deg)`;
+                p.style.opacity = 0;
+            }, 30);
+            setTimeout(() => p.remove(), 3000);
+        }, i * 35);
+    }
 
-  const symbols = document.querySelectorAll('#piggy-reels .symbol');
-  symbols.forEach(s => {
-    s.textContent = Math.random() > 0.6 ? "💰" : ["🐷","🍒","🪙","🏦"][Math.floor(Math.random()*4)];
-  });
+    setTimeout(() => msg.style.opacity = 0, 2800);
+}
 
-  const win = Math.random() > 0.5 ? piggyBet * (15 + Math.random()*35) : 0;
-  if (win > 0) {
-    balance += win;
-    document.getElementById("piggy-win").textContent = "$" + win.toFixed(2);
-    updateAllBalances();
-  }
-};
+function highlightPaylines() {
+    document.querySelectorAll('.payline').forEach((line, i) => {
+        line.style.opacity = 0.85;
+        setTimeout(() => line.style.opacity = 0, 1600 + i*180);
+    });
+}
 
-// Shop & Modals
-window.showShop = function() {
-  document.getElementById("shop-modal").classList.remove("hidden");
-};
+function updateUI() {
+    document.getElementById('balance').textContent = balance;
+    document.getElementById('betAmount').textContent = bet;
+    document.getElementById('jackpot').textContent = jackpot;
+    document.getElementById('lastWin').textContent = '0';
+}
 
-window.addCredits = function(amount) {
-  balance += amount;
-  updateAllBalances();
-  alert(`✅ Added $${amount} fake credits!`);
-};
+function changeBet(delta) {
+    if (isSpinning) return;
+    bet = Math.max(10, Math.min(400, bet + delta));
+    document.getElementById('betAmount').textContent = bet;
+}
 
-window.closeShop = function() {
-  document.getElementById("shop-modal").classList.add("hidden");
-};
+function toggleAutoSpin() {
+    autoSpinning = !autoSpinning;
+    playSound('click');
+    if (autoSpinning && !isSpinning) spin();
+}
 
-window.closeWheelModal = function() {
-  document.getElementById("wheel-modal").classList.add("hidden");
-};
+function showInfo() {
+    playSound('click');
+    const modal = document.getElementById('infoModal');
+    const list = document.getElementById('paytable');
+    list.innerHTML = '';
+    
+    symbols.forEach(sym => {
+        const li = document.createElement('li');
+        li.innerHTML = `<span style="color:${sym.color}">${sym.emoji} ${sym.name}</span> — 3x: ~${(sym.value*bet*1.6).toFixed(0)} | 4x+: higher`;
+        list.appendChild(li);
+    });
+    
+    modal.style.display = 'flex';
+}
 
-// Initialize - This runs when page loads
-window.onload = function() {
-  updateAllBalances();
-  createReels('huff-reels');
-  createReels('piggy-reels');
+function closeModal() {
+    document.getElementById('infoModal').style.display = 'none';
+}
 
-  // Force hide modal on load
-  const modal = document.getElementById("wheel-modal");
-  if (modal) modal.classList.add("hidden");
+// Keyboard
+document.addEventListener('keydown', e => {
+    if (e.key === ' ' && !isSpinning) {
+        e.preventDefault();
+        spin();
+    }
+});
+
+// Init
+window.onload = () => {
+    initReels();
+    updateUI();
+    document.getElementById('infoBtn').addEventListener('click', showInfo);
+    document.getElementById('historyText').textContent = "Entangle reality • Good luck, Operator";
+    
+    console.log('%cVOIDSPIN Quantum Entanglement initialized — Ready for licensing or deployment.', 'color:#22d3ee; font-family:monospace');
 };
