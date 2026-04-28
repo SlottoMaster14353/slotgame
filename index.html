@@ -7,82 +7,153 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Exo+2:wght@400;700&display=swap');
-    body { font-family: 'Exo 2', system-ui; background: linear-gradient(#0a0a2e, #1a0033); }
-    .reel { width: 88px; height: 210px; overflow: hidden; background: #0f0f2e; border: 5px solid #67e8f9; border-radius: 12px; box-shadow: 0 0 25px #22d3ee; }
-    .reel-strip { display: flex; flex-direction: column; transition: transform 2.8s cubic-bezier(0.25, 0.1, 0.25, 1); }
-    .symbol { height: 70px; display: flex; align-items: center; justify-content: center; font-size: 42px; border-bottom: 2px solid #334155; }
-    .locked { position: relative; }
-    .locked::after { content: ''; position: absolute; inset: 6px; border: 3px solid #c026d3; border-radius: 8px; animation: pulse 1.2s infinite alternate; }
-    @keyframes pulse { from { box-shadow: 0 0 15px #67e8f9; } to { box-shadow: 0 0 35px #e879f9; } }
-    .win-highlight { animation: glow 0.6s infinite alternate; }
-    @keyframes glow { from { box-shadow: 0 0 20px #67e8f9; } to { box-shadow: 0 0 50px #f472b6; } }
+    @import url('https://fonts.googleapis.com/css2?family=Exo+2:wght@400;600;700&display=swap');
+    
+    body {
+      font-family: 'Exo 2', system-ui;
+      background: linear-gradient(to bottom, #0a0a2e, #1a0033);
+    }
+    
+    .reel {
+      width: 92px;
+      height: 198px;
+      overflow: hidden;
+      background: #0f0f2e;
+      border: 6px solid #67e8f9;
+      border-radius: 14px;
+      box-shadow: 0 0 30px #22d3ee;
+      position: relative;
+    }
+
+    .reel-strip {
+      display: flex;
+      flex-direction: column;
+      transition: transform 2.8s cubic-bezier(0.23, 1, 0.32, 1);
+    }
+
+    .symbol {
+      height: 66px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 44px;
+      border-bottom: 2px solid #334155;
+      background: rgba(15, 15, 46, 0.8);
+    }
+
+    .locked::after {
+      content: '';
+      position: absolute;
+      inset: 4px;
+      border: 4px solid #c026d3;
+      border-radius: 10px;
+      animation: pulse 1.4s infinite alternate;
+    }
+
+    @keyframes pulse {
+      from { box-shadow: 0 0 15px #67e8f9; }
+      to { box-shadow: 0 0 40px #e879f9; }
+    }
+
+    .win-highlight {
+      animation: glow 0.8s infinite alternate;
+    }
+
+    @keyframes glow {
+      from { box-shadow: 0 0 25px #67e8f9; }
+      to { box-shadow: 0 0 55px #f472b6; }
+    }
   </style>
 </head>
-<body class="min-h-screen py-6 text-white">
+<body class="min-h-screen py-8 text-white">
   <div class="max-w-5xl mx-auto px-4">
-    <h1 class="text-center text-5xl font-bold bg-gradient-to-r from-cyan-400 to-pink-400 bg-clip-text text-transparent mb-2">QUANTUM GALAXIES</h1>
-    
-    <div class="bg-gradient-to-r from-blue-900 to-purple-900 border-4 border-yellow-400 rounded-2xl p-4 mb-6 flex items-center justify-center gap-6">
-      <div class="text-6xl font-bold text-yellow-400">6+</div>
-      <div class="text-center">
-        <div class="text-xl font-bold text-yellow-300">QUANTUM ORBS TRIGGER</div>
-        <div class="text-lg">HOLD &amp; SPIN BONUS</div>
+    <!-- Header -->
+    <div class="flex justify-between items-center mb-6">
+      <h1 class="text-5xl font-bold tracking-widest bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+        QUANTUM GALAXIES
+      </h1>
+      <div class="bg-black/80 border-4 border-yellow-400 rounded-2xl px-8 py-3 text-center">
+        <div class="text-yellow-300 text-sm">GRAND JACKPOT</div>
+        <div id="grandJackpot" class="text-4xl font-bold text-yellow-400">$12,500</div>
       </div>
     </div>
 
-    <div class="flex justify-center gap-6 mb-8" id="reels"></div>
+    <!-- Trigger Banner -->
+    <div class="bg-gradient-to-r from-indigo-900 to-purple-900 border-4 border-yellow-400 rounded-3xl p-5 mb-8 flex items-center justify-center gap-8 text-center">
+      <div class="text-6xl font-bold text-yellow-400">6+</div>
+      <div>
+        <div class="text-2xl font-bold text-yellow-300">QUANTUM ORBS</div>
+        <div class="text-lg">TRIGGER HOLD & SPIN BONUS</div>
+      </div>
+    </div>
 
-    <div class="flex items-center justify-between px-6 bg-slate-950/80 py-4 rounded-2xl">
+    <!-- Reels -->
+    <div class="flex justify-center gap-4 mb-10 bg-slate-950/70 p-8 rounded-3xl" id="reels"></div>
+
+    <!-- Controls -->
+    <div class="flex items-center justify-between bg-slate-900/90 py-6 px-10 rounded-3xl">
       <div>
         <div class="text-xs opacity-70">BALANCE</div>
-        <div id="balance" class="text-3xl font-bold text-emerald-400">$5,000</div>
+        <div id="balance" class="text-4xl font-bold text-emerald-400">$5,000</div>
       </div>
+
       <div class="text-center">
-        <div class="text-xs opacity-70">BET</div>
-        <div class="flex gap-2">
-          <button onclick="setBet(10)" class="bet-btn px-6 py-3 bg-slate-800 hover:bg-slate-700 rounded-xl">10</button>
-          <button onclick="setBet(50)" class="bet-btn px-6 py-3 bg-slate-800 hover:bg-slate-700 rounded-xl">50</button>
-          <button onclick="setBet(100)" class="bet-btn px-6 py-3 bg-slate-800 hover:bg-slate-700 rounded-xl active">100</button>
-          <button onclick="setBet(250)" class="bet-btn px-6 py-3 bg-slate-800 hover:bg-slate-700 rounded-xl">250</button>
+        <div class="text-xs opacity-70 mb-1">BET</div>
+        <div class="flex gap-3">
+          <button onclick="setBet(10)" class="bet-btn px-6 py-3 bg-slate-800 hover:bg-slate-700 rounded-2xl text-sm">10</button>
+          <button onclick="setBet(50)" class="bet-btn px-6 py-3 bg-slate-800 hover:bg-slate-700 rounded-2xl text-sm">50</button>
+          <button onclick="setBet(100)" class="bet-btn px-6 py-3 bg-slate-800 hover:bg-slate-700 rounded-2xl text-sm active">100</button>
+          <button onclick="setBet(250)" class="bet-btn px-6 py-3 bg-slate-800 hover:bg-slate-700 rounded-2xl text-sm">250</button>
         </div>
       </div>
+
       <div>
         <div class="text-xs opacity-70">CURRENT BET</div>
-        <div id="currentBet" class="text-3xl font-bold">$100</div>
+        <div id="currentBet" class="text-4xl font-bold">$100</div>
       </div>
-      <button onclick="spin()" id="spinBtn" class="bg-gradient-to-r from-pink-600 to-violet-600 px-12 py-6 text-3xl font-bold rounded-2xl active:scale-95">SPIN</button>
-      <button onclick="showInfo()" class="w-12 h-12 bg-cyan-600 rounded-2xl flex items-center justify-center text-2xl"><i class="fas fa-info-circle"></i></button>
+
+      <button onclick="spin()" id="spinBtn"
+        class="bg-gradient-to-r from-pink-600 to-violet-600 hover:from-pink-700 hover:to-violet-700 px-16 py-7 text-3xl font-bold rounded-2xl active:scale-95 transition-all">
+        SPIN
+      </button>
+
+      <button onclick="showInfo()" class="w-14 h-14 bg-cyan-600 hover:bg-cyan-500 rounded-2xl flex items-center justify-center text-3xl">
+        <i class="fas fa-info-circle"></i>
+      </button>
     </div>
 
-    <div id="message" class="text-center mt-6 text-2xl font-bold h-14"></div>
+    <div id="message" class="text-center mt-8 text-2xl font-bold h-16"></div>
   </div>
 
-  <!-- Bonus Screen (Hold & Spin) -->
+  <!-- Hold & Spin Bonus Modal -->
   <div id="bonusScreen" class="hidden fixed inset-0 bg-black/95 flex items-center justify-center z-50">
-    <div class="bg-slate-900 border-8 border-purple-500 rounded-3xl p-8 max-w-lg w-full text-center">
-      <h2 class="text-4xl font-bold text-purple-400 mb-4">QUANTUM HOLD &amp; SPIN</h2>
-      <div class="text-6xl mb-6" id="spinsLeft">8</div>
-      <div class="text-xl mb-4">Spins Remaining</div>
+    <div class="bg-slate-900 border-8 border-purple-500 rounded-3xl p-8 w-full max-w-lg text-center">
+      <h2 class="text-4xl font-bold text-purple-400 mb-2">QUANTUM HOLD & SPIN</h2>
+      <div id="spinsLeft" class="text-7xl font-bold text-white mb-2">8</div>
+      <div class="text-xl mb-6">Spins Remaining</div>
       <div class="flex justify-center gap-4 mb-8" id="bonusReels"></div>
-      <button onclick="exitBonus()" class="mt-4 px-10 py-4 bg-red-600 rounded-2xl font-bold">END BONUS</button>
+      <div onclick="bonusSpin()" class="cursor-pointer text-sm text-purple-300 underline">Click to Spin Bonus</div>
     </div>
   </div>
 
   <script>
-    // Reel strip - Quantum Orb (🎇) is now rare
-    const reelStrip = ['⭐','⭐','🌟','🌙','🪐','☄️','🚀','🌌','🛸','🔥','💎','🌠','🛰️','🌑','🌕','🌌','⚙️','⚙️','⚙️','🎇','🎇']; 
+    // Reel strip - Quantum Orb is rare
+    const reelStrip = ['⭐','⭐','🌟','🌙','🪐','☄️','🚀','🌌','🛸','🔥','💎','🌠','🛰️','🌑','🌕','🌌','⚙️','⚙️','⚙️','🎇','🎇'];
 
-    const symbolValues = { '⭐':5, '🌟':10, '🌙':15, '🪐':25, '☄️':40, '🚀':60, '🌌':90, '🛸':120, '🔥':150, '💎':200 };
+    const symbolValues = {
+      '⭐': 5, '🌟': 10, '🌙': 15, '🪐': 25,
+      '☄️': 40, '🚀': 60, '🌌': 90, '🛸': 120,
+      '🔥': 150, '💎': 200
+    };
 
     let balance = 5000;
     let currentBet = 100;
     let isSpinning = false;
     let bonusSpinsLeft = 0;
-    let lockedOrbs = []; // positions with locked orbs in bonus
+    let lockedOrbs = [];
 
-    const reelsContainer = document.getElementById('reels');
     let reelElements = [];
+    const reelsContainer = document.getElementById('reels');
 
     function createReels() {
       reelsContainer.innerHTML = '';
@@ -92,7 +163,8 @@
         reel.className = 'reel';
         const strip = document.createElement('div');
         strip.className = 'reel-strip';
-        for (let j = 0; j < 35; j++) {
+        // Initial symbols
+        for (let j = 0; j < 30; j++) {
           const sym = document.createElement('div');
           sym.className = 'symbol';
           sym.textContent = reelStrip[Math.floor(Math.random() * reelStrip.length)];
@@ -100,7 +172,7 @@
         }
         reel.appendChild(strip);
         reelsContainer.appendChild(reel);
-        reelElements.push({reel, strip});
+        reelElements.push({ reel, strip });
       }
     }
 
@@ -108,22 +180,26 @@
       if (isSpinning) return;
       currentBet = amount;
       document.getElementById('currentBet').textContent = '$' + amount;
-      document.querySelectorAll('.bet-btn').forEach(b => b.classList.toggle('active', parseInt(b.textContent) === amount));
+      document.querySelectorAll('.bet-btn').forEach(btn => {
+        btn.classList.toggle('active', parseInt(btn.textContent) === amount);
+      });
     }
 
     function getRandomSymbol() {
       return reelStrip[Math.floor(Math.random() * reelStrip.length)];
     }
 
-    function countSpecial(grid, symbol) {
+    function countSymbol(grid, symbol) {
       let count = 0;
       grid.forEach(reel => reel.forEach(s => { if (s === symbol) count++; }));
       return count;
     }
 
     async function spin() {
-      if (isSpinning || balance < currentBet) return;
-      if (balance < currentBet) { showMessage("NOT ENOUGH CREDITS", "#f43f5e"); return; }
+      if (isSpinning || balance < currentBet) {
+        if (balance < currentBet) showMessage("NOT ENOUGH CREDITS", "#ef4444");
+        return;
+      }
 
       isSpinning = true;
       balance -= currentBet;
@@ -132,73 +208,75 @@
 
       showMessage("SPINNING...", "#67e8f9");
 
-      // Generate new grid (5 reels x 3 rows)
-      let grid = [];
-      for (let i = 0; i < 5; i++) {
-        let reelResult = [];
-        for (let j = 0; j < 3; j++) {
+      // Generate new results
+      const newGrid = [];
+      for (let r = 0; r < 5; r++) {
+        const reelResult = [];
+        for (let i = 0; i < 3; i++) {
           reelResult.push(getRandomSymbol());
         }
-        grid.push(reelResult);
+        newGrid.push(reelResult);
       }
 
-      // Animate reels
-      for (let i = 0; i < 5; i++) {
-        const strip = reelElements[i].strip;
+      // Spin animation - symbols stay until new ones land
+      reelElements.forEach(({strip}, index) => {
         strip.style.transition = 'none';
-        strip.style.transform = 'translateY(0)';
         void strip.offsetWidth;
-        strip.style.transition = `transform ${2400 + i*150}ms cubic-bezier(0.25,0.1,0.25,1)`;
-        strip.style.transform = `translateY(-${700 + Math.random()*300}px)`;
-      }
+        strip.style.transition = `transform ${2600 + index * 180}ms cubic-bezier(0.25, 0.1, 0.25, 1)`;
+        strip.style.transform = `translateY(-${800 + Math.random() * 400}px)`;
+      });
 
-      await new Promise(r => setTimeout(r, 2900));
+      await new Promise(resolve => setTimeout(resolve, 2900));
 
-      // Render final symbols
-      reelElements.forEach((re, idx) => {
+      // Render new symbols on top (board doesn't clear)
+      reelElements.forEach((re, reelIdx) => {
         const strip = re.strip;
-        strip.innerHTML = '';
-        grid[idx].forEach(sym => {
+        strip.innerHTML = ''; // only replace the visible symbols
+        newGrid[reelIdx].forEach(sym => {
           const div = document.createElement('div');
           div.className = 'symbol';
           div.textContent = sym;
+          if (sym === '🎇') div.classList.add('locked');
           strip.appendChild(div);
         });
       });
 
-      const orbCount = countSpecial(grid, '🎇');
-      const sawCount = countSpecial(grid, '⚙️');
-
+      // Calculate wins (243 ways style)
       let totalWin = 0;
-      // Simple win calculation for base game
+      const orbCount = countSymbol(newGrid, '🎇');
+      const sawCount = countSymbol(newGrid, '⚙️');
+
       for (let row = 0; row < 3; row++) {
-        let matchCount = 1;
-        let sym = grid[0][row];
+        let streak = 1;
+        let currentSym = newGrid[0][row];
         for (let r = 1; r < 5; r++) {
-          if (grid[r][row] === sym && sym !== '🎇' && sym !== '⚙️') matchCount++;
-          else {
-            if (matchCount >= 3) totalWin += currentBet * (symbolValues[sym] || 10) * (matchCount - 2);
-            matchCount = 1;
-            sym = grid[r][row];
+          if (newGrid[r][row] === currentSym && currentSym !== '🎇' && currentSym !== '⚙️') {
+            streak++;
+          } else {
+            if (streak >= 3) totalWin += currentBet * (symbolValues[currentSym] || 12) * Math.max(1, streak - 2);
+            streak = 1;
+            currentSym = newGrid[r][row];
           }
         }
-        if (matchCount >= 3) totalWin += currentBet * (symbolValues[sym] || 10) * (matchCount - 2);
+        if (streak >= 3) totalWin += currentBet * (symbolValues[currentSym] || 12) * Math.max(1, streak - 2);
       }
 
       if (totalWin > 0) {
         balance += totalWin;
         document.getElementById('balance').textContent = '$' + balance.toLocaleString();
-        showMessage(`WIN +$${totalWin}`, "#eab308");
+        showMessage(`WIN +$${totalWin}`, totalWin > currentBet * 20 ? "#eab308" : "#6ee7b7");
+        if (totalWin > currentBet * 25) triggerConfetti();
       }
 
+      // Trigger features
       if (sawCount >= 3) {
-        showMessage("QUANTUM WHEEL FEATURE!", "#facc15");
-        setTimeout(() => triggerWheelFeature(), 1200);
+        showMessage("QUANTUM WHEEL FEATURE ACTIVATED!", "#facc15");
+        setTimeout(triggerWheelFeature, 1200);
       } else if (orbCount >= 6) {
-        showMessage(`QUANTUM HOLD & SPIN ACTIVATED!`, "#c026d3");
-        setTimeout(() => startHoldAndSpin(grid), 1000);
+        showMessage("QUANTUM HOLD & SPIN BONUS!", "#c026d3");
+        setTimeout(() => startHoldAndSpin(newGrid), 1000);
       } else if (totalWin === 0) {
-        showMessage("NO WIN", "#64748b");
+        showMessage("BETTER LUCK NEXT SPIN", "#64748b");
       }
 
       isSpinning = false;
@@ -206,17 +284,16 @@
     }
 
     function triggerWheelFeature() {
-      const outcomes = [
-        {text: "MINI JACKPOT", win: currentBet * 20},
-        {text: "MINOR JACKPOT", win: currentBet * 50},
-        {text: "MAJOR JACKPOT", win: currentBet * 150},
-        {text: "GRAND JACKPOT", win: currentBet * 500},
-        {text: "MEGA ORB BONUS", win: currentBet * 80}
+      const prizes = [
+        { name: "MINI", win: currentBet * 25 },
+        { name: "MINOR", win: currentBet * 60 },
+        { name: "MAJOR", win: currentBet * 180 },
+        { name: "GRAND JACKPOT", win: currentBet * 450 }
       ];
-      const result = outcomes[Math.floor(Math.random() * outcomes.length)];
+      const result = prizes[Math.floor(Math.random() * prizes.length)];
       balance += result.win;
       document.getElementById('balance').textContent = '$' + balance.toLocaleString();
-      showMessage(`${result.text} +$${result.win}`, "#eab308");
+      showMessage(`${result.name} +$${result.win}`, "#eab308");
       triggerConfetti();
     }
 
@@ -232,19 +309,15 @@
       container.innerHTML = '';
       document.getElementById('spinsLeft').textContent = bonusSpinsLeft;
 
-      grid.forEach((reel, rIdx) => {
+      grid.forEach((reelSymbols, rIdx) => {
         const reelDiv = document.createElement('div');
         reelDiv.className = 'reel scale-75';
         const strip = document.createElement('div');
         strip.className = 'reel-strip';
-        reel.forEach((sym, sIdx) => {
+        reelSymbols.forEach(sym => {
           const div = document.createElement('div');
-          div.className = 'symbol';
+          div.className = `symbol ${sym === '🎇' ? 'locked' : ''}`;
           div.textContent = sym;
-          if (sym === '🎇') {
-            div.classList.add('locked');
-            lockedOrbs.push({reel: rIdx, row: sIdx});
-          }
           strip.appendChild(div);
         });
         reelDiv.appendChild(strip);
@@ -252,7 +325,6 @@
       });
     }
 
-    // Simulate one bonus spin
     function bonusSpin() {
       if (bonusSpinsLeft <= 0) return exitBonus();
 
@@ -260,89 +332,81 @@
       let newGrid = Array(5).fill().map(() => Array(3).fill('⭐'));
 
       // Keep locked orbs
-      lockedOrbs.forEach(pos => {
-        newGrid[pos.reel][pos.row] = '🎇';
-      });
+      lockedOrbs.forEach(pos => newGrid[pos.reel][pos.row] = '🎇');
 
-      // Fill empty spots
+      // Fill empty positions
       for (let r = 0; r < 5; r++) {
         for (let s = 0; s < 3; s++) {
           if (newGrid[r][s] !== '🎇') {
-            newGrid[r][s] = Math.random() < 0.25 ? '🎇' : reelStrip[Math.floor(Math.random() * (reelStrip.length - 3))];
+            newGrid[r][s] = Math.random() < 0.22 ? '🎇' : reelStrip[Math.floor(Math.random() * reelStrip.length)];
           }
         }
       }
 
       // Check for extra spins
-      const newOrbs = countSpecial(newGrid, '🎇') - lockedOrbs.length;
-      if (newOrbs >= 3) {
-        bonusSpinsLeft += 3;
-      }
+      const newOrbCount = countSymbol(newGrid, '🎇') - lockedOrbs.length;
+      if (newOrbCount >= 3) bonusSpinsLeft += 3;
 
+      // Update locked orbs
       lockedOrbs = [];
-      newGrid.forEach((reel, r) => {
-        reel.forEach((sym, s) => {
-          if (sym === '🎇') lockedOrbs.push({reel: r, row: s});
-        });
-      });
+      newGrid.forEach((reel, r) => reel.forEach((sym, s) => {
+        if (sym === '🎇') lockedOrbs.push({reel: r, row: s});
+      }));
 
       updateBonusDisplay(newGrid);
 
       if (bonusSpinsLeft <= 0) {
         setTimeout(() => {
-          const finalWin = currentBet * lockedOrbs.length * 8;
+          const finalWin = currentBet * lockedOrbs.length * 12;
           balance += finalWin;
           document.getElementById('balance').textContent = '$' + balance.toLocaleString();
           showMessage(`BONUS COMPLETE +$${finalWin}`, "#eab308");
           exitBonus();
-        }, 1200);
+        }, 1500);
       }
     }
 
     function exitBonus() {
       document.getElementById('bonusScreen').classList.add('hidden');
-      isSpinning = false;
-      document.getElementById('spinBtn').disabled = false;
     }
 
-    function showMessage(text, color) {
-      const msg = document.getElementById('message');
-      msg.textContent = text;
-      msg.style.color = color;
+    function showMessage(text, color = "#eab308") {
+      const el = document.getElementById('message');
+      el.textContent = text;
+      el.style.color = color;
     }
 
     function triggerConfetti() {
-      for (let i = 0; i < 120; i++) {
+      for (let i = 0; i < 100; i++) {
         setTimeout(() => {
           const c = document.createElement('div');
           c.textContent = ['🌟','☄️','🚀','💎'][Math.floor(Math.random()*4)];
           c.style.position = 'fixed';
-          c.style.left = Math.random()*100 + 'vw';
+          c.style.left = Math.random() * 100 + 'vw';
           c.style.top = '-40px';
           c.style.fontSize = '32px';
-          c.style.zIndex = 9999;
+          c.style.zIndex = '9999';
           document.body.appendChild(c);
-          setTimeout(() => { c.style.transition = 'all 3.5s'; c.style.transform = `translateY(${window.innerHeight+200}px) rotate(${Math.random()*1000}deg)`; c.style.opacity = 0; }, 50);
+          setTimeout(() => {
+            c.style.transition = 'all 3.5s linear';
+            c.style.transform = `translateY(${window.innerHeight + 200}px) rotate(${Math.random()*1200}deg)`;
+            c.style.opacity = '0';
+          }, 100);
           setTimeout(() => c.remove(), 4000);
-        }, i*7);
+        }, i * 8);
       }
     }
 
     function showInfo() {
-      alert("QUANTUM GALAXIES\n\n• 5×3 • 243 Ways\n• 6+ Quantum Orbs → Hold & Spin (starts with 8 spins)\n• 3+ Buzz Saws → Quantum Wheel Feature\n• Orbs lock and upgrade frames\n• 3 new orbs in bonus = +3 spins");
+      alert("QUANTUM GALAXIES\n\n• 5 Reels × 3 Rows\n• 243 Ways to Win\n• 6+ Orbs → Hold & Spin Bonus (8 spins)\n• 3 new Orbs in bonus = +3 spins\n• 3+ Buzz Saws → Quantum Wheel Feature");
     }
 
-    // Init
+    // Initialize
     window.onload = () => {
       createReels();
       document.getElementById('balance').textContent = '$' + balance.toLocaleString();
       setBet(100);
-      showMessage("ENTER THE QUANTUM REALM", "#67e8f9");
-
-      // Auto bonus spin button for demo (click anywhere in bonus screen to spin)
-      document.getElementById('bonusScreen').addEventListener('click', () => {
-        if (!isSpinning) bonusSpin();
-      });
+      showMessage("GOOD LUCK IN THE QUANTUM REALM!", "#67e8f9");
     };
   </script>
 </body>
