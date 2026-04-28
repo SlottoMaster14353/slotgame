@@ -1,244 +1,182 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>QUANTUM GALAXIES</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Exo+2:wght@400;600;700&display=swap');
-    
-    body {
-      font-family: 'Exo 2', system-ui;
-      background: linear-gradient(to bottom, #0a0a2e, #1a0033);
-    }
-    
-    .reel {
-      width: 92px;
-      height: 198px;
-      overflow: hidden;
-      background: #0f0f2e;
-      border: 6px solid #67e8f9;
-      border-radius: 14px;
-      box-shadow: 0 0 30px #22d3ee;
-      position: relative;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QUANTUM GALAXIES</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Exo+2:wght@400;600;700&display=swap');
+body{font-family:'Exo 2',system-ui;background:radial-gradient(circle,#141428,#05060f);color:white;}
 
-    .reel-strip {
-      display: flex;
-      flex-direction: column;
-      transition: transform 2.8s cubic-bezier(0.23, 1, 0.32, 1);
-      will-change: transform;
-    }
+.reel{width:92px;height:192px;overflow:hidden;border-radius:14px;border:3px solid #67e8f9;background:#0b1220;position:relative;}
+.reel-strip{display:flex;flex-direction:column;transition:transform 2.2s cubic-bezier(.2,.9,.2,1);}
+.symbol{height:64px;display:flex;align-items:center;justify-content:center;font-size:40px;border-bottom:1px solid #1f2a44;}
 
-    .symbol {
-      height: 66px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 44px;
-      border-bottom: 2px solid #334155;
-      background: rgba(15, 15, 46, 0.8);
-      position: relative;
-    }
+.btn{padding:6px 10px;border-radius:10px;background:#111827;border:1px solid #374151}
 
-    .locked::after {
-      content: '';
-      position: absolute;
-      inset: 4px;
-      border: 4px solid #c026d3;
-      border-radius: 10px;
-      animation: pulse 1.4s infinite alternate;
-    }
+.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);align-items:center;justify-content:center;z-index:50;}
+.modal-box{width:360px;background:#0f172a;border:2px solid #67e8f9;border-radius:16px;padding:16px;}
 
-    @keyframes pulse {
-      from { box-shadow: 0 0 15px #67e8f9; }
-      to { box-shadow: 0 0 40px #e879f9; }
-    }
+#wheel{
+  width:240px;height:240px;border-radius:50%;
+  border:6px solid #fbbf24;margin:auto;
+  position:relative;transition:transform 4s cubic-bezier(.2,.9,.2,1);
+}
 
-    .win-highlight {
-      animation: glow 0.8s infinite alternate;
-    }
+.segment{position:absolute;width:50%;height:50%;transform-origin:100% 100%;background:conic-gradient(#1f2937,#111827);}
 
-    @keyframes glow {
-      from { box-shadow: 0 0 25px #67e8f9; }
-      to { box-shadow: 0 0 55px #f472b6; }
-    }
+#lineOverlay{
+  position:absolute;inset:0;pointer-events:none;
+}
 
-    /* INFO MODAL */
-    .modal {
-      display:none;
-      position:fixed;
-      inset:0;
-      background:rgba(0,0,0,.85);
-      align-items:center;
-      justify-content:center;
-      z-index:999;
-    }
-
-    .modal-box {
-      width:340px;
-      background:#0f172a;
-      border:2px solid #67e8f9;
-      border-radius:16px;
-      padding:18px;
-    }
-  </style>
+.line{
+  position:absolute;height:2px;background:red;opacity:.7;
+}
+</style>
 </head>
-<body class="min-h-screen py-8 text-white">
-  <div class="max-w-5xl mx-auto px-4">
-    
-    <div class="flex justify-between items-center mb-6">
-      <h1 class="text-5xl font-bold tracking-widest bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
-        QUANTUM GALAXIES
-      </h1>
-      <div class="bg-black/80 border-4 border-yellow-400 rounded-2xl px-8 py-3 text-center">
-        <div class="text-yellow-300 text-sm">GRAND JACKPOT</div>
-        <div id="grandJackpot" class="text-4xl font-bold text-yellow-400">$12,500</div>
-      </div>
-    </div>
+<body class="min-h-screen py-6">
 
-    <div class="flex justify-center gap-4 mb-10 bg-slate-950/70 p-8 rounded-3xl" id="reels"></div>
+<div class="max-w-6xl mx-auto px-4">
 
-    <div class="flex items-center justify-between bg-slate-900/90 py-6 px-10 rounded-3xl">
-      <div>
-        <div class="text-xs opacity-70">BALANCE</div>
-        <div id="balance" class="text-4xl font-bold text-emerald-400">$5,000</div>
-      </div>
+<div class="flex justify-between mb-3">
+  <h1 class="text-3xl text-cyan-300 font-bold">QUANTUM GALAXIES</h1>
+  <div>Balance: <span id="balance">50000</span></div>
+</div>
 
-      <div class="text-center">
-        <div class="text-xs opacity-70 mb-1">BET</div>
-        <div class="flex gap-3">
-          <button onclick="setBet(10)" class="bet-btn px-6 py-3 bg-slate-800 rounded-2xl text-sm">10</button>
-          <button onclick="setBet(50)" class="bet-btn px-6 py-3 bg-slate-800 rounded-2xl text-sm">50</button>
-          <button onclick="setBet(100)" class="bet-btn px-6 py-3 bg-slate-800 rounded-2xl text-sm active">100</button>
-          <button onclick="setBet(250)" class="bet-btn px-6 py-3 bg-slate-800 rounded-2xl text-sm">250</button>
-        </div>
-      </div>
+<div>Jackpot: <span id="jp">100000</span></div>
 
-      <div>
-        <div class="text-xs opacity-70">CURRENT BET</div>
-        <div id="currentBet" class="text-4xl font-bold">$100</div>
-      </div>
+<div class="flex justify-center gap-4 my-4" id="reels"></div>
 
-      <button onclick="spin()" id="spinBtn"
-        class="bg-gradient-to-r from-pink-600 to-violet-600 px-16 py-7 text-3xl font-bold rounded-2xl">
-        SPIN
-      </button>
+<div class="flex justify-center gap-2">
+<button class="btn" onclick="changeBet(-50)">-</button>
+<div>BET <span id="bet">100</span></div>
+<button class="btn" onclick="changeBet(50)">+</button>
+</div>
 
-      <button onclick="showInfo()" class="w-14 h-14 bg-cyan-600 rounded-2xl">
-        <i class="fas fa-info-circle"></i>
-      </button>
-    </div>
+<div class="flex justify-center gap-3 mt-3">
+<button class="btn" onclick="spin()">SPIN</button>
+<button class="btn" onclick="autoToggle()">AUTO</button>
+<button class="btn" onclick="turboToggle()">TURBO</button>
+<button class="btn" onclick="openWheel()">WHEEL</button>
+</div>
 
-    <div id="message" class="text-center mt-8 text-2xl font-bold h-16"></div>
+<div id="msg" class="text-center mt-2"></div>
+
+<div id="lineOverlay"></div>
+
+</div>
+
+<!-- WHEEL -->
+<div id="wheelModal" class="modal">
+  <div class="modal-box text-center">
+    <div id="wheel"></div>
+    <button onclick="spinWheel()" class="btn mt-3">SPIN WHEEL</button>
   </div>
+</div>
 
-  <!-- INFO MODAL FIXED -->
-  <div id="infoModal" class="modal">
-    <div class="modal-box text-center">
-      <h2 class="text-xl text-cyan-300 mb-2">GAME INFO</h2>
-      <p class="text-sm mb-3">5 Reels × 3 Rows • 243 Ways</p>
-      <p class="text-xs text-gray-400 mb-4">Fair weighted RNG system simulation</p>
-      <button onclick="closeInfo()" class="bg-red-500 px-4 py-2 rounded">CLOSE</button>
-    </div>
-  </div>
+<audio id="spinSnd"></audio>
+<audio id="winSnd"></audio>
 
 <script>
-const reelStrip = ['⭐','🌟','🌙','🪐','☄️','🚀','🌌','🛸','🔥','💎','🌠','⚙️'];
+let balance=50000,bet=100,reels=[],auto=false,turbo=false,jackpot=100000;
+const sym=['A','B','C','D','E','F'];
 
-let balance = 5000;
-let currentBet = 100;
-let isSpinning = false;
-let reelElements = [];
+function beep(freq,dur){
+  let ctx=new (window.AudioContext||window.webkitAudioContext)();
+  let o=ctx.createOscillator();
+  let g=ctx.createGain();
+  o.connect(g);g.connect(ctx.destination);
+  o.frequency.value=freq;o.start();g.gain.exponentialRampToValueAtTime(0.0001,ctx.currentTime+dur);
+  setTimeout(()=>o.stop(),dur*1000);
+}
 
-function createReels(){
-  const c=document.getElementById('reels');
-  c.innerHTML='';
-  reelElements=[];
+function rand(){return sym[Math.floor(Math.random()*sym.length)];}
 
+function create(){
+  let c=document.getElementById('reels');c.innerHTML='';reels=[];
   for(let i=0;i<5;i++){
-    const reel=document.createElement('div');
-    reel.className='reel';
-
-    const strip=document.createElement('div');
-    strip.className='reel-strip';
-
-    for(let j=0;j<25;j++){
-      const d=document.createElement('div');
-      d.className='symbol';
-      d.textContent=reelStrip[Math.floor(Math.random()*reelStrip.length)];
-      strip.appendChild(d);
+    let r=document.createElement('div');r.className='reel';
+    let s=document.createElement('div');s.className='reel-strip';
+    for(let j=0;j<20;j++){
+      let d=document.createElement('div');d.className='symbol';d.textContent=rand();s.appendChild(d);
     }
-
-    reel.appendChild(strip);
-    c.appendChild(reel);
-    reelElements.push(strip);
+    r.appendChild(s);c.appendChild(r);reels.push(s);
   }
 }
 
-function setBet(v){
-  if(isSpinning) return;
-  currentBet=v;
-  document.getElementById('currentBet').textContent='$'+v;
-}
+function changeBet(v){bet=Math.max(50,bet+v);document.getElementById('bet').textContent=bet;}
 
-function getSym(){
-  return reelStrip[Math.floor(Math.random()*reelStrip.length)];
-}
+function spin(){
+  reels.forEach(r=>r.style.transform='translateY(-520px)');
+  beep(200,0.1);
 
-async function spin(){
-  if(isSpinning||balance<currentBet) return;
-  isSpinning=true;
+  setTimeout(()=>{
+    let grid=[];
+    for(let i=0;i<5;i++){grid[i]=[];for(let j=0;j<3;j++)grid[i][j]=rand();}
 
-  balance-=currentBet;
-  document.getElementById('balance').textContent='$'+balance;
-  showMsg('SPINNING...');
-
-  const grid=[];
-  for(let i=0;i<5;i++){
-    const col=[];
-    for(let j=0;j<3;j++) col.push(getSym());
-    grid.push(col);
-  }
-
-  reelElements.forEach(r=>{
-    r.style.transform='translateY(-500px)';
-  });
-
-  await new Promise(r=>setTimeout(r,2200));
-
-  reelElements.forEach((r,i)=>{
-    r.style.transition='none';
-    r.style.transform='translateY(0)';
-    r.innerHTML='';
-
-    grid[i].forEach(s=>{
-      const d=document.createElement('div');
-      d.className='symbol';
-      d.textContent=s;
-      r.appendChild(d);
+    reels.forEach((r,i)=>{
+      r.innerHTML='';r.style.transition='none';r.style.transform='translateY(0)';
+      grid[i].forEach(v=>{let d=document.createElement('div');d.className='symbol';d.textContent=v;r.appendChild(d);});
     });
+
+    check243(grid);
+    jackpot+=bet*0.05;
+    document.getElementById('jp').textContent=Math.floor(jackpot);
+
+    if(Math.random()<0.15)openWheel();
+
+    if(auto)setTimeout(spin,turbo?300:1200);
+  },turbo?800:2000);
+}
+
+function check243(g){
+  let win=0;
+  let lines=[];
+
+  for(let r=0;r<3;r++){
+    let sym=g[0][r];
+    let count=1;
+    for(let c=1;c<5;c++){
+      if(g[c][r]==sym)count++; else break;
+    }
+    if(count>=3){win+=bet*10;lines.push(r);}
+  }
+
+  if(win>0){
+    balance+=win;
+    document.getElementById('balance').textContent=balance;
+    drawLines(lines);
+    beep(600,0.2);
+  }
+}
+
+function drawLines(lines){
+  let o=document.getElementById('lineOverlay');o.innerHTML='';
+  lines.forEach(l=>{
+    let d=document.createElement('div');d.className='line';d.style.top=(120+l*64)+'px';d.style.left='0';d.style.width='100%';o.appendChild(d);
   });
-
-  isSpinning=false;
-  showMsg('READY');
 }
 
-function showMsg(t){
-  document.getElementById('message').textContent=t;
+function autoToggle(){auto=!auto;if(auto)spin();}
+function turboToggle(){turbo=!turbo;}
+
+function openWheel(){document.getElementById('wheelModal').style.display='flex';buildWheel();}
+function buildWheel(){
+  let w=document.getElementById('wheel');w.innerHTML='';
+  for(let i=0;i<6;i++){
+    let s=document.createElement('div');s.className='segment';s.style.transform=`rotate(${i*60}deg)`;w.appendChild(s);
+  }
 }
 
-function showInfo(){
-  document.getElementById('infoModal').style.display='flex';
+function spinWheel(){
+  let deg=3600+Math.random()*360;
+  document.getElementById('wheel').style.transform=`rotate(${deg}deg)`;
+  setTimeout(()=>{balance+=1000;document.getElementById('balance').textContent=balance;},4000);
 }
 
-function closeInfo(){
-  document.getElementById('infoModal').style.display='none';
-}
-
-window.onload=createReels;
+window.onload=create;
 </script>
 
 </body>
