@@ -1,19 +1,18 @@
-// script.js - FIXED VERSION
+// script.js - CLEAN FIXED VERSION (No auto modal on load)
 
 let balance = 5000;
 let huffBet = 2.50;
 let piggyBet = 2.00;
 
-const huffSymbols = ["🐷","🐖","🛠️","👷","🏠","🪚","A","K","Q","J","10"];
+const huffSymbols = ["🐷", "🐖", "🛠️", "👷", "🏠", "🪚", "A", "K", "Q", "J", "10"];
 
 function updateAllBalances() {
   const formatted = "$" + balance.toFixed(2);
-  const lobbyBal = document.getElementById("lobby-balance");
-  if (lobbyBal) lobbyBal.textContent = formatted;
+  document.getElementById("lobby-balance").textContent = formatted;
   
   const huffCash = document.getElementById("huff-cash");
   if (huffCash) huffCash.textContent = formatted;
-  
+
   const piggyCash = document.getElementById("piggy-cash");
   if (piggyCash) piggyCash.textContent = formatted;
 }
@@ -21,6 +20,7 @@ function updateAllBalances() {
 function createReels(containerId) {
   const container = document.getElementById(containerId);
   if (!container) return;
+  
   container.innerHTML = '';
   for (let i = 0; i < 5; i++) {
     const reel = document.createElement("div");
@@ -34,15 +34,13 @@ function createReels(containerId) {
   }
 }
 
+// ============== NAVIGATION ==============
 window.enterGame = function(game) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById(game + '-game').classList.add('active');
 
-  if (game === 'huff') {
-    createReels('huff-reels');
-  } else if (game === 'piggy') {
-    createReels('piggy-reels');
-  }
+  if (game === 'huff') createReels('huff-reels');
+  if (game === 'piggy') createReels('piggy-reels');
 };
 
 window.goHome = function() {
@@ -51,7 +49,7 @@ window.goHome = function() {
   updateAllBalances();
 };
 
-// ==================== HUFF N PUFF ====================
+// ============== HUFF N PUFF ==============
 window.spinHuff = function() {
   if (balance < huffBet) {
     alert("Not enough credits!");
@@ -85,22 +83,21 @@ function finishHuffSpin() {
     document.getElementById("huff-win").textContent = "$" + winAmount.toFixed(2);
     updateAllBalances();
 
-    // Glowing win effect
+    // Win glow effect
     document.querySelectorAll('#huff-reels .symbol').forEach(s => {
       if (Math.random() > 0.45) s.classList.add('win-glow');
     });
 
-    // Random chance to trigger Buzz Saw Wheel (only after a win)
-    if (Math.random() < 0.22) {
-      setTimeout(triggerBuzzSawWheel, 800);
+    // Only trigger wheel after actual win (with low chance)
+    if (Math.random() < 0.25) {
+      setTimeout(triggerBuzzSawWheel, 900);
     }
   }
 
-  // Re-enable spin button
   setTimeout(() => {
     const btn = document.getElementById("huffSpinBtn");
     if (btn) btn.disabled = false;
-  }, 600);
+  }, 800);
 }
 
 function triggerBuzzSawWheel() {
@@ -109,7 +106,7 @@ function triggerBuzzSawWheel() {
   document.getElementById("wheel-modal").classList.remove("hidden");
 }
 
-// ==================== PIGGY BANK ====================
+// ============== PIGGY BANK ==============
 window.spinPiggy = function() {
   if (balance < piggyBet) {
     alert("Not enough credits!");
@@ -133,7 +130,7 @@ window.spinPiggy = function() {
   }
 };
 
-// ==================== SHOP & MODALS ====================
+// ============== SHOP & MODALS ==============
 window.showShop = function() {
   document.getElementById("shop-modal").classList.remove("hidden");
 };
@@ -141,7 +138,7 @@ window.showShop = function() {
 window.addCredits = function(amount) {
   balance += amount;
   updateAllBalances();
-  alert(`✅ Added $${amount} fake credits!`);
+  alert(`Added $${amount} fake credits!`);
 };
 
 window.closeShop = function() {
@@ -152,10 +149,15 @@ window.closeWheelModal = function() {
   document.getElementById("wheel-modal").classList.add("hidden");
 };
 
-// ==================== INIT ====================
+// ============== INITIALIZE ==============
 window.onload = function() {
   updateAllBalances();
-  // Pre-create reels so they are ready
+  
+  // Pre-create reels quietly
   createReels('huff-reels');
   createReels('piggy-reels');
+
+  // Make sure modal is hidden on load
+  const modal = document.getElementById("wheel-modal");
+  if (modal) modal.classList.add("hidden");
 };
