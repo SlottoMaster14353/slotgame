@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Huff N' Puff</title>
+  <link rel="stylesheet" href="styles/styles.css">
+</head>
+<body>
+  <div class="game-container">
+
+    <!-- Top Section -->
+    <div class="top-section">
+      <div class="logo">HUFF N' PUFF</div>
+      
+      <div class="wheel-trigger">
+        <div class="gear">6</div>
+        <div class="trigger-text">
+          OR MORE TRIGGERS<br>
+          <strong>WHEEL FEATURE</strong>
+        </div>
+        <div class="saw">🛠️</div>
+      </div>
+
+      <div class="jackpot-area">
+        <div class="grand-jackpot">
+          GRAND<br>
+          <span class="amount" id="grand">$12,500.00</span>
+        </div>
+        <div class="progressives">
+          <div class="prog blue">MAJOR<br>$1,250</div>
+          <div class="prog green">MINOR<br>$250</div>
+          <div class="prog purple">MINI<br>$50</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Game Area -->
+    <div class="main-area">
+      <div class="reels-wrapper" id="reels-wrapper">
+        <!-- 5 Reels will be injected by JavaScript -->
+      </div>
+
+      <!-- Right Side Wheel -->
+      <div class="side-wheel">
+        <div class="wheel-visual">
+          <strong>BUZZ SAW WHEEL</strong><br>
+          GRAND JACKPOT • MAJOR • MINOR • MINI<br>
+          BUZZ SAW • MEGA HAT • MANSIONS FEATURE
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom Bar -->
+    <div class="bottom-bar">
+      <div class="info">
+        CASH <span id="cash">$5,000.00</span>
+      </div>
+      <div class="info">
+        BET <span id="bet">$2.50</span>
+      </div>
+      <div class="info">
+        WIN <span id="win">$0.00</span>
+      </div>
+
+      <div class="spin-controls">
+        <button class="bet-btn" onclick="changeBet(-0.50)">−</button>
+        <button onclick="spin()" id="spinButton" class="spin-button">SPIN</button>
+        <button class="bet-btn" onclick="changeBet(0.50)">+</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
