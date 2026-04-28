@@ -11,19 +11,21 @@
     
     <div class="machine">
         <div class="header">
-            <div class="title">VOIDSPIN</div>
-            <div class="subtitle">QUANTUM ENTANGLEMENT REELS</div>
-            <button id="infoBtn" class="info-btn" title="Game Rules & Probabilities">ⓘ</button>
+            <div>
+                <div class="title">VOIDSPIN</div>
+                <div class="subtitle">QUANTUM ENTANGLEMENT REELS</div>
+            </div>
+            <button id="infoBtn" class="info-btn">ⓘ</button>
         </div>
 
         <div class="stats">
-            <div class="balance">BALANCE: <span id="balance">5000</span> ★</div>
-            <div class="bet">BET: <span id="betAmount">50</span> ★</div>
+            <div>BALANCE: <span id="balance">5000</span></div>
+            <div>BET: <span id="betAmount">50</span></div>
             <div>JACKPOT: <span id="jackpot" class="jackpot">12500</span></div>
-            <div>WIN: <span id="lastWin">0</span></div>
+            <div>LAST WIN: <span id="lastWin">0</span></div>
         </div>
 
-        <div class="reels-container" id="reelsContainer">
+        <div class="reels-container">
             <div class="reel" id="reel1"><div class="reel-inner" id="reel1-inner"></div></div>
             <div class="reel" id="reel2"><div class="reel-inner" id="reel2-inner"></div></div>
             <div class="reel" id="reel3"><div class="reel-inner" id="reel3-inner"></div></div>
@@ -36,35 +38,25 @@
         </div>
 
         <div class="controls">
-            <button onclick="changeBet(-10)">-10</button>
+            <button onclick="changeBet(-10)">–10</button>
             <button onclick="changeBet(10)">+10</button>
             <button id="spinBtn" onclick="spin()">SPIN THE VOID</button>
-            <button onclick="toggleAutoSpin()">AUTO</button>
+            <button onclick="toggleAutoSpin()">AUTO SPIN</button>
         </div>
 
         <div id="winMessage" class="win-message"></div>
-        <div class="history"><span id="historyText">Quantum field stable • Spin to begin</span></div>
+        <div class="history"><span id="historyText">Quantum field charged • Press SPIN</span></div>
     </div>
 
     <!-- Info Modal -->
     <div id="infoModal" class="modal">
         <div class="modal-content">
-            <span class="close" onclick="closeModal()">&times;</span>
-            <h2>VOIDSPIN — Game Rules & Probabilities</h2>
-            <h3>Paytable & Symbols</h3>
+            <span class="close" onclick="closeModal()">×</span>
+            <h2>VOIDSPIN — Rules & Probabilities</h2>
+            <p><strong>RTP:</strong> ~96.2% | <strong>Volatility:</strong> High</p>
+            <h3>Symbol Probabilities (weighted RNG)</h3>
             <ul id="paytable"></ul>
-            
-            <h3>RNG & Mathematics</h3>
-            <p><strong>Theoretical RTP:</strong> 96.2% (long-term average return)</p>
-            <p><strong>Volatility:</strong> High — big swings, massive potential wins</p>
-            <p>Outcomes are generated with a weighted pseudo-random number generator (RNG). 
-               Quantum (⚛️) and Singularity (🌀) have lower base probability but higher multipliers.</p>
-            
-            <h3>Progressive Jackpot</h3>
-            <p>Triggered by landing 5 Quantum symbols. Jackpot grows with every bet placed.</p>
-            
-            <h3>How to Win</h3>
-            <p>3+ matching symbols anywhere pay. 5 Quantum = Jackpot + huge multiplier.</p>
+            <p>The game uses a proper weighted random system. Rare symbols like Quantum have lower probability but huge payouts and can trigger the Progressive Jackpot.</p>
             <button onclick="closeModal()" class="modal-close-btn">CLOSE</button>
         </div>
     </div>
