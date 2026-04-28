@@ -1,11 +1,10 @@
-// VOIDSPIN Quantum Entanglement - script.js
 const symbols = [
-    { emoji: '⚛️', name: 'Quantum',     value: 80,  color: '#22d3ee', prob: 0.09 },
-    { emoji: '🌀', name: 'Singularity', value: 45,  color: '#c026d3', prob: 0.13 },
-    { emoji: '🌌', name: 'Nebula',      value: 28,  color: '#f472b6', prob: 0.16 },
-    { emoji: '🔮', name: 'Oracle',      value: 22,  color: '#67e8f9', prob: 0.18 },
-    { emoji: '⚡', name: 'Pulse',       value: 16,  color: '#4ade80', prob: 0.20 },
-    { emoji: '🌠', name: 'Voidstar',    value: 12,  color: '#eab308', prob: 0.24 }
+    { emoji: '⚛️', name: 'Quantum',     value: 120, color: '#22d3ee', weight: 8 },
+    { emoji: '🌀', name: 'Singularity', value: 55,  color: '#c026d3', weight: 14 },
+    { emoji: '🌌', name: 'Nebula',      value: 32,  color: '#f472b6', weight: 18 },
+    { emoji: '🔮', name: 'Oracle',      value: 24,  color: '#67e8f9', weight: 22 },
+    { emoji: '⚡', name: 'Pulse',       value: 18,  color: '#4ade80', weight: 25 },
+    { emoji: '🌠', name: 'Voidstar',    value: 14,  color: '#eab308', weight: 30 }
 ];
 
 let balance = 5000;
@@ -14,211 +13,181 @@ let jackpot = 12500;
 let isSpinning = false;
 let autoSpinning = false;
 
-let reels = [];
-let currentResults = [];
-
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
 function playSound(type) {
     const osc = audioCtx.createOscillator();
     const gain = audioCtx.createGain();
-    osc.connect(gain);
-    gain.connect(audioCtx.destination);
+    osc.connect(gain); gain.connect(audioCtx.destination);
 
-    if (type === 'spin') {
-        osc.type = 'sawtooth';
-        osc.frequency.setValueAtTime(180, audioCtx.currentTime);
-        gain.gain.value = 0.25;
-        osc.start();
-        setTimeout(() => { osc.stop(); }, 600);
-    } else if (type === 'stop') {
-        osc.type = 'square';
-        osc.frequency.setValueAtTime(420, audioCtx.currentTime);
-        gain.gain.value = 0.15;
-        osc.start();
-        setTimeout(() => osc.stop(), 80);
-    } else if (type === 'win') {
-        gain.gain.value = 0.4;
-        for (let i = 0; i < 6; i++) {
+    if (type === 'spinStart') {
+        osc.type = 'sawtooth'; osc.frequency.value = 140; gain.gain.value = 0.3;
+        osc.start(); setTimeout(() => osc.stop(), 650);
+    } else if (type === 'reelStop') {
+        osc.type = 'square'; osc.frequency.value = 520; gain.gain.value = 0.2;
+        osc.start(); setTimeout(() => osc.stop(), 60);
+    } else if (type === 'bigWin') {
+        gain.gain.value = 0.45;
+        for (let i = 0; i < 8; i++) {
             setTimeout(() => {
-                osc.frequency.setValueAtTime(680 + i*120, audioCtx.currentTime);
-                osc.start();
-                setTimeout(() => osc.stop(), 120);
-            }, i*80);
+                osc.frequency.setValueAtTime(600 + i*180, audioCtx.currentTime);
+                osc.start(); setTimeout(() => osc.stop(), 140);
+            }, i*90);
         }
     } else if (type === 'jackpot') {
-        // Simple rising fanfare
         osc.type = 'sine';
-        osc.frequency.setValueAtTime(300, audioCtx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(1200, audioCtx.currentTime + 1.8);
-        gain.gain.value = 0.35;
-        osc.start();
-        setTimeout(() => osc.stop(), 2000);
-    } else if (type === 'click') {
-        osc.type = 'triangle';
-        osc.frequency.setValueAtTime(880, audioCtx.currentTime);
-        gain.gain.value = 0.1;
-        osc.start();
-        setTimeout(() => osc.stop(), 40);
+        osc.frequency.setValueAtTime(280, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(1400, audioCtx.currentTime + 2.2);
+        gain.gain.value = 0.4;
+        osc.start(); setTimeout(() => osc.stop(), 2400);
     }
 }
 
-function createReelHTML(index) {
-    const inner = document.getElementById(`reel${index+1}-inner`);
-    inner.innerHTML = '';
-    for (let i = 0; i < 35; i++) {
-        const sym = symbols[Math.floor(Math.random() * symbols.length)];
-        const div = document.createElement('div');
-        div.className = 'symbol';
-        div.style.color = sym.color;
-        div.innerHTML = sym.emoji;
-        inner.appendChild(div);
+function getWeightedSymbol() {
+    let totalWeight = symbols.reduce((sum, s) => sum + s.weight, 0);
+    let rand = Math.random() * totalWeight;
+    for (let sym of symbols) {
+        rand -= sym.weight;
+        if (rand <= 0) return sym;
     }
+    return symbols[symbols.length - 1];
 }
 
 function initReels() {
-    reels = [];
-    for (let i = 0; i < 5; i++) {
-        createReelHTML(i);
-        reels.push(document.getElementById(`reel${i+1}-inner`));
+    for (let i = 1; i <= 5; i++) {
+        const inner = document.getElementById(`reel${i}-inner`);
+        inner.innerHTML = '';
+        for (let j = 0; j < 40; j++) {
+            const sym = symbols[Math.floor(Math.random() * symbols.length)];
+            const div = document.createElement('div');
+            div.className = 'symbol';
+            div.style.color = sym.color;
+            div.textContent = sym.emoji;
+            inner.appendChild(div);
+        }
     }
-}
-
-function weightedRandomSymbol() {
-    let r = Math.random();
-    for (let sym of symbols) {
-        if (r < sym.prob) return sym;
-        r -= sym.prob;
-    }
-    return symbols[symbols.length-1];
 }
 
 async function spin() {
     if (isSpinning || balance < bet) return;
     isSpinning = true;
     document.getElementById('spinBtn').disabled = true;
-    playSound('click');
 
     balance -= bet;
-    jackpot += Math.floor(bet * 0.03); // jackpot grows
+    jackpot += Math.floor(bet * 0.035);
     updateUI();
 
-    currentResults = Array(5).fill().map(() => weightedRandomSymbol());
+    const results = Array(5).fill().map(() => getWeightedSymbol());
 
-    // Staggered spins
-    const promises = [];
+    playSound('spinStart');
+
+    // Improved "huff and puff" style spin with realistic slowdown
     for (let i = 0; i < 5; i++) {
-        promises.push(spinSingleReel(i, 450 + i * 160));
+        await spinReel(i, results[i], 380 + i * 170);
     }
-    await Promise.all(promises);
 
-    const winAmount = calculateWin(currentResults);
+    const winAmount = calculateWin(results);
     if (winAmount > 0) {
         balance += winAmount;
-        showWin(winAmount);
+        showBigWin(winAmount, results.every(r => r.name === 'Quantum'));
         highlightPaylines();
-        if (isJackpotWin(currentResults)) {
-            jackpotWin();
-        } else {
-            playSound('win');
-        }
     }
 
     updateUI();
-    document.getElementById('spinBtn').disabled = false;
     isSpinning = false;
+    document.getElementById('spinBtn').disabled = false;
 
-    if (autoSpinning && balance >= bet) setTimeout(spin, 1100);
+    if (autoSpinning && balance >= bet) setTimeout(spin, 900);
 }
 
-function spinSingleReel(index, delay) {
+async function spinReel(index, finalSymbol, delay) {
     return new Promise(resolve => {
-        const reel = reels[index];
-        let pos = 0;
-        let speed = 52;
-
-        playSound('spin');
+        const reel = document.getElementById(`reel${index+1}-inner`);
+        let position = 0;
+        let velocity = 68;   // fast start
 
         const interval = setInterval(() => {
-            pos -= speed;
-            reel.style.transform = `translateY(${pos}px)`;
-            if (speed > 9) speed *= 0.94;
+            position -= velocity;
+            reel.style.transform = `translateY(${position}px)`;
+            if (velocity > 12) velocity *= 0.935;   // smooth deceleration
         }, 16);
 
         setTimeout(() => {
             clearInterval(interval);
-            const targetY = -(currentResults[index].emoji.charCodeAt(0) % 3 * 140 + 40); // visual snap
-            reel.style.transition = 'transform 320ms cubic-bezier(0.25, 0.46, 0.45, 0.94)';
-            reel.style.transform = `translateY(${targetY}px)`;
-            playSound('stop');
-            setTimeout(resolve, 380);
+            // Final snap with slight bounce
+            const target = - (symbols.indexOf(finalSymbol) * 138 + 80);
+            reel.style.transition = 'transform 340ms cubic-bezier(0.33, 1, 0.68, 1)';
+            reel.style.transform = `translateY(${target}px)`;
+            playSound('reelStop');
+            setTimeout(resolve, 420);
         }, delay);
     });
 }
 
 function calculateWin(results) {
     let win = 0;
-    const counts = {};
-    results.forEach(s => counts[s.name] = (counts[s.name]||0) + 1);
+    const count = {};
+    results.forEach(s => count[s.name] = (count[s.name] || 0) + 1);
 
-    Object.keys(counts).forEach(key => {
-        const c = counts[key];
+    Object.keys(count).forEach(key => {
+        const c = count[key];
         if (c >= 3) {
             const sym = results.find(s => s.name === key);
-            win += sym.value * bet * (c - 2) * 1.6;
+            win += sym.value * bet * (c - 1.5);
         }
     });
-
-    if (new Set(results.map(r => r.name)).size === 5) win += bet * 4;
     return Math.floor(win);
 }
 
-function isJackpotWin(results) {
-    return results.every(s => s.name === 'Quantum');
-}
-
-function jackpotWin() {
-    const winAmount = jackpot;
-    balance += winAmount;
-    document.getElementById('winMessage').textContent = `JACKPOT!!! +${winAmount}`;
-    playSound('jackpot');
-    showWin(winAmount, true);
-    jackpot = 12500; // reset after hit
-}
-
-function showWin(amount, isJackpot = false) {
+function showBigWin(amount, isJackpot) {
     const msg = document.getElementById('winMessage');
-    msg.textContent = isJackpot ? `MASSIVE JACKPOT +${amount}` : `+${amount}`;
-    msg.style.opacity = 1;
-    msg.style.color = isJackpot ? '#facc15' : '#4ade80';
+    msg.textContent = isJackpot ? `JACKPOT!!! +${amount}` : `+${amount}`;
+    msg.style.opacity = '1';
+    msg.style.color = isJackpot ? '#fcd34d' : '#4ade80';
 
-    // Particle burst
-    for (let i = 0; i < 22; i++) {
+    if (isJackpot) playSound('jackpot');
+    else playSound('bigWin');
+
+    // Screen shake + intense particles
+    document.querySelector('.machine').style.transition = 'transform 80ms';
+    let shake = 0;
+    const shakeInterval = setInterval(() => {
+        shake = Math.random() * 12 - 6;
+        document.querySelector('.machine').style.transform = `translate(${shake}px, ${shake}px)`;
+    }, 50);
+
+    setTimeout(() => {
+        clearInterval(shakeInterval);
+        document.querySelector('.machine').style.transform = 'translate(0,0)';
+    }, 800);
+
+    // More dramatic particles
+    for (let i = 0; i < 28; i++) {
         setTimeout(() => {
             const p = document.createElement('div');
             p.style.position = 'fixed';
-            p.style.left = Math.random()*100 + 'vw';
-            p.style.top = '-60px';
-            p.style.fontSize = '2.4rem';
-            p.style.zIndex = 999;
-            p.textContent = '✨🌠⚛️🌀'[Math.floor(Math.random()*4)];
+            p.style.fontSize = '3rem';
+            p.style.left = Math.random() * 100 + 'vw';
+            p.style.top = '-80px';
+            p.style.zIndex = '999';
+            p.textContent = ['⚛️','🌀','✨','🌌'][Math.floor(Math.random()*4)];
             document.body.appendChild(p);
             setTimeout(() => {
-                p.style.transition = 'transform 2.4s ease-out, opacity 2.4s';
-                p.style.transform = `translateY(${window.innerHeight+300}px) rotate(${Math.random()*1200-600}deg)`;
-                p.style.opacity = 0;
-            }, 30);
-            setTimeout(() => p.remove(), 3000);
-        }, i * 35);
+                p.style.transition = 'all 2.8s cubic-bezier(0.2,0,1,1)';
+                p.style.transform = `translateY(${window.innerHeight + 400}px) rotate(${Math.random()*900 - 450}deg)`;
+                p.style.opacity = '0';
+            }, 40);
+            setTimeout(() => p.remove(), 3200);
+        }, i * 28);
     }
 
-    setTimeout(() => msg.style.opacity = 0, 2800);
+    setTimeout(() => msg.style.opacity = '0', 3200);
 }
 
 function highlightPaylines() {
-    document.querySelectorAll('.payline').forEach((line, i) => {
-        line.style.opacity = 0.85;
-        setTimeout(() => line.style.opacity = 0, 1600 + i*180);
+    document.querySelectorAll('.payline').forEach((l, i) => {
+        l.style.opacity = '0.9';
+        setTimeout(() => l.style.opacity = '0', 1400 + i*220);
     });
 }
 
@@ -231,28 +200,24 @@ function updateUI() {
 
 function changeBet(delta) {
     if (isSpinning) return;
-    bet = Math.max(10, Math.min(400, bet + delta));
+    bet = Math.max(10, Math.min(500, bet + delta));
     document.getElementById('betAmount').textContent = bet;
 }
 
 function toggleAutoSpin() {
     autoSpinning = !autoSpinning;
-    playSound('click');
     if (autoSpinning && !isSpinning) spin();
 }
 
 function showInfo() {
-    playSound('click');
     const modal = document.getElementById('infoModal');
     const list = document.getElementById('paytable');
     list.innerHTML = '';
-    
-    symbols.forEach(sym => {
+    symbols.forEach(s => {
         const li = document.createElement('li');
-        li.innerHTML = `<span style="color:${sym.color}">${sym.emoji} ${sym.name}</span> — 3x: ~${(sym.value*bet*1.6).toFixed(0)} | 4x+: higher`;
+        li.innerHTML = `<span style="color:${s.color}">${s.emoji} ${s.name}</span> — Weight: ${s.weight} | Big multiplier`;
         list.appendChild(li);
     });
-    
     modal.style.display = 'flex';
 }
 
@@ -260,20 +225,11 @@ function closeModal() {
     document.getElementById('infoModal').style.display = 'none';
 }
 
-// Keyboard
-document.addEventListener('keydown', e => {
-    if (e.key === ' ' && !isSpinning) {
-        e.preventDefault();
-        spin();
-    }
-});
+document.addEventListener('keydown', e => { if (e.key === ' ' && !isSpinning) { e.preventDefault(); spin(); }});
 
-// Init
 window.onload = () => {
     initReels();
     updateUI();
-    document.getElementById('infoBtn').addEventListener('click', showInfo);
-    document.getElementById('historyText').textContent = "Entangle reality • Good luck, Operator";
-    
-    console.log('%cVOIDSPIN Quantum Entanglement initialized — Ready for licensing or deployment.', 'color:#22d3ee; font-family:monospace');
+    document.getElementById('infoBtn').onclick = showInfo;
+    document.getElementById('historyText').textContent = "The Quantum Void is calling...";
 };
