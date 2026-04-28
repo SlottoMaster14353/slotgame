@@ -3,71 +3,80 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Huff N' Puff</title>
+  <title>Slot Lounge - Play for Fun</title>
   <link rel="stylesheet" href="styles/styles.css">
 </head>
 <body>
-  <div class="game-container">
+  <div id="lobby" class="screen">
+    <h1 class="lobby-title">🎰 SLOT LOUNGE 🎰</h1>
+    <div class="games-grid">
+      <div class="game-card" onclick="startGame('huff')">
+        <img src="https://via.placeholder.com/300x180/ffd700/000?text=HUFF+N'+PUFF" alt="Huff N Puff">
+        <h2>Huff N' Puff</h2>
+        <p>Light & Wonder Style • 243 Ways</p>
+      </div>
+      <div class="game-card" onclick="startGame('piggy')">
+        <img src="https://via.placeholder.com/300x180/ff69b4/000?text=BREAK+THE+PIGGY+BANK" alt="Break the Piggy Bank">
+        <h2>Break the Piggy Bank</h2>
+        <p>Octoplay Style • Hold & Win</p>
+      </div>
+    </div>
+    <p style="margin-top:30px; color:#aaa;">Fake Credits Only • For Fun</p>
+  </div>
 
-    <!-- Top Section -->
-    <div class="top-section">
-      <div class="logo">HUFF N' PUFF</div>
-      
-      <div class="wheel-trigger">
-        <div class="gear">6</div>
-        <div class="trigger-text">
-          OR MORE TRIGGERS<br>
-          <strong>WHEEL FEATURE</strong>
+  <!-- Huff N Puff Game -->
+  <div id="huff-game" class="screen hidden">
+    <button class="home-btn" onclick="goHome()">🏠 HOME</button>
+    
+    <div class="game-container">
+      <!-- Top Bar same as before but improved -->
+      <div class="top-section">
+        <div class="logo">HUFF N' PUFF</div>
+        <div class="wheel-trigger">6+ TRIGGERS → WHEEL FEATURE</div>
+        <div class="jackpot-area">
+          <div class="grand-jackpot">GRAND<br><span id="grand">$12,500</span></div>
         </div>
-        <div class="saw">🛠️</div>
       </div>
 
-      <div class="jackpot-area">
-        <div class="grand-jackpot">
-          GRAND<br>
-          <span class="amount" id="grand">$12,500.00</span>
-        </div>
-        <div class="progressives">
-          <div class="prog blue">MAJOR<br>$1,250</div>
-          <div class="prog green">MINOR<br>$250</div>
-          <div class="prog purple">MINI<br>$50</div>
+      <div class="main-area">
+        <div class="reels-wrapper" id="reels-wrapper"></div>
+        <div class="side-wheel">BUZZ SAW WHEEL<br>Jackpots & Bonuses</div>
+      </div>
+
+      <div class="bottom-bar">
+        <div>CASH <span id="cash">$5000.00</span></div>
+        <div>BET <span id="bet">$2.50</span></div>
+        <div>WIN <span id="win">$0.00</span></div>
+        <div class="spin-controls">
+          <button class="bet-btn" onclick="changeBet(-0.5)">−</button>
+          <button onclick="spin()" id="spinBtn" class="spin-button">SPIN</button>
+          <button class="bet-btn" onclick="changeBet(0.5)">+</button>
         </div>
       </div>
     </div>
+  </div>
 
-    <!-- Main Game Area -->
-    <div class="main-area">
-      <div class="reels-wrapper" id="reels-wrapper">
-        <!-- 5 Reels will be injected by JavaScript -->
-      </div>
-
-      <!-- Right Side Wheel -->
-      <div class="side-wheel">
-        <div class="wheel-visual">
-          <strong>BUZZ SAW WHEEL</strong><br>
-          GRAND JACKPOT • MAJOR • MINOR • MINI<br>
-          BUZZ SAW • MEGA HAT • MANSIONS FEATURE
-        </div>
+  <!-- Break the Piggy Bank Game -->
+  <div id="piggy-game" class="screen hidden">
+    <button class="home-btn" onclick="goHome()">🏠 HOME</button>
+    <div class="game-container" style="background:#4a2f0a;">
+      <h1 style="color:#ff69b4; margin:15px;">BREAK THE PIGGY BANK</h1>
+      <div class="reels-wrapper" id="piggy-reels"></div>
+      <div class="bottom-bar">
+        <div>CASH <span id="piggy-cash">$5000.00</span></div>
+        <div>BET <span id="piggy-bet">$2.00</span></div>
+        <div>WIN <span id="piggy-win">$0.00</span></div>
+        <button onclick="spinPiggy()" id="piggySpinBtn" class="spin-button">SPIN</button>
       </div>
     </div>
+  </div>
 
-    <!-- Bottom Bar -->
-    <div class="bottom-bar">
-      <div class="info">
-        CASH <span id="cash">$5,000.00</span>
-      </div>
-      <div class="info">
-        BET <span id="bet">$2.50</span>
-      </div>
-      <div class="info">
-        WIN <span id="win">$0.00</span>
-      </div>
-
-      <div class="spin-controls">
-        <button class="bet-btn" onclick="changeBet(-0.50)">−</button>
-        <button onclick="spin()" id="spinButton" class="spin-button">SPIN</button>
-        <button class="bet-btn" onclick="changeBet(0.50)">+</button>
-      </div>
+  <!-- Buzz Saw Wheel Modal -->
+  <div id="wheel-modal" class="modal hidden">
+    <div class="modal-content">
+      <h2>BUZZ SAW WHEEL!</h2>
+      <p id="wheel-result">Spinning...</p>
+      <button onclick="closeModal()">CLOSE</button>
     </div>
   </div>
 
