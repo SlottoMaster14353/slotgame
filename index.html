@@ -1,106 +1,74 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Slot Lounge - Play for Fun</title>
-  <link rel="stylesheet" href="styles/styles.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VOIDSPIN • Quantum Entanglement</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <!-- LOBBY -->
-  <div id="lobby" class="screen active">
-    <div class="header">
-      <div class="balance-header">
-        <span>Balance:</span> <span id="lobby-balance">$5000.00</span>
-        <button onclick="showShop()" class="shop-btn">💰 Add Credits</button>
-      </div>
-      <h1 class="lobby-title">🎰 SLOT LOUNGE 🎰</h1>
-    </div>
-
-    <div class="games-grid">
-      <div class="game-card" onclick="enterGame('huff')">
-        <img src="https://picsum.photos/id/1015/320/180" alt="Huff N Puff">
-        <h2>HUFF N' PUFF</h2>
-        <p>Light & Wonder Style • 243 Ways</p>
-      </div>
-      <div class="game-card" onclick="enterGame('piggy')">
-        <img src="https://picsum.photos/id/201/320/180" alt="Break the Piggy Bank">
-        <h2>BREAK THE PIGGY BANK</h2>
-        <p>Octoplay Style • Hold & Win</p>
-      </div>
-    </div>
-
-    <div class="disclaimer">
-      <strong>Disclaimer:</strong> This is a free demo site for entertainment only. No real money is involved. 
-      Gambling can be addictive. Play responsibly. Must be 21+ in most jurisdictions. 
-      All credits are fictional.
-    </div>
-  </div>
-
-  <!-- HUFF N PUFF GAME -->
-  <div id="huff-game" class="screen">
-    <button class="home-btn" onclick="goHome()">🏠 HOME</button>
-    <div class="game-container">
-      <div class="top-section">
-        <div class="logo">HUFF N' PUFF</div>
-        <div class="wheel-trigger">6+ HARD HATS → BUZZ SAW WHEEL</div>
-        <div class="grand">GRAND<br><span id="grand">$12,500</span></div>
-      </div>
-
-      <div class="main-area">
-        <div class="reels-wrapper" id="huff-reels"></div>
-        <div class="side-wheel">BUZZ SAW WHEEL FEATURE</div>
-      </div>
-
-      <div class="bottom-bar">
-        <div>CASH <span id="huff-cash">$5000.00</span></div>
-        <div>BET <span id="huff-bet">$2.50</span></div>
-        <div>WIN <span id="huff-win">$0.00</span></div>
-        <div class="spin-controls">
-          <button class="bet-btn" onclick="changeBet(-0.5, 'huff')">−</button>
-          <button onclick="spinHuff()" id="huffSpinBtn" class="spin-button">SPIN</button>
-          <button class="bet-btn" onclick="changeBet(0.5, 'huff')">+</button>
+    <div class="background-grid"></div>
+    
+    <div class="machine">
+        <div class="header">
+            <div class="title">VOIDSPIN</div>
+            <div class="subtitle">QUANTUM ENTANGLEMENT REELS</div>
+            <button id="infoBtn" class="info-btn" title="Game Rules & Probabilities">ⓘ</button>
         </div>
-      </div>
-    </div>
-  </div>
 
-  <!-- BREAK THE PIGGY BANK -->
-  <div id="piggy-game" class="screen">
-    <button class="home-btn" onclick="goHome()">🏠 HOME</button>
-    <div class="game-container piggy-bg">
-      <h1 style="color:#ff69b4; margin:10px;">BREAK THE PIGGY BANK</h1>
-      <div class="reels-wrapper" id="piggy-reels"></div>
-      <div class="bottom-bar">
-        <div>CASH <span id="piggy-cash">$5000.00</span></div>
-        <div>BET <span id="piggy-bet">$2.00</span></div>
-        <div>WIN <span id="piggy-win">$0.00</span></div>
-        <button onclick="spinPiggy()" id="piggySpinBtn" class="spin-button">SPIN</button>
-      </div>
-    </div>
-  </div>
+        <div class="stats">
+            <div class="balance">BALANCE: <span id="balance">5000</span> ★</div>
+            <div class="bet">BET: <span id="betAmount">50</span> ★</div>
+            <div>JACKPOT: <span id="jackpot" class="jackpot">12500</span></div>
+            <div>WIN: <span id="lastWin">0</span></div>
+        </div>
 
-  <!-- Fake Credit Shop Modal -->
-  <div id="shop-modal" class="modal hidden">
-    <div class="modal-content">
-      <h2>💰 Fake Credit Shop</h2>
-      <p>Buy fake credits (for fun only)</p>
-      <button onclick="addCredits(1000)">+ $1,000</button>
-      <button onclick="addCredits(5000)">+ $5,000</button>
-      <button onclick="addCredits(10000)">+ $10,000</button>
-      <button onclick="closeShop()" style="margin-top:20px;">Close</button>
-    </div>
-  </div>
+        <div class="reels-container" id="reelsContainer">
+            <div class="reel" id="reel1"><div class="reel-inner" id="reel1-inner"></div></div>
+            <div class="reel" id="reel2"><div class="reel-inner" id="reel2-inner"></div></div>
+            <div class="reel" id="reel3"><div class="reel-inner" id="reel3-inner"></div></div>
+            <div class="reel" id="reel4"><div class="reel-inner" id="reel4-inner"></div></div>
+            <div class="reel" id="reel5"><div class="reel-inner" id="reel5-inner"></div></div>
 
-  <!-- Buzz Saw Wheel Modal -->
-  <div id="wheel-modal" class="modal hidden">
-    <div class="modal-content">
-      <h2>🎡 BUZZ SAW WHEEL!</h2>
-      <p id="wheel-result">You won Hard Hat Free Spins + $350!</p>
-      <button onclick="closeWheelModal()">OK</button>
-    </div>
-  </div>
+            <div class="payline" id="line1"></div>
+            <div class="payline" id="line2"></div>
+            <div class="payline" id="line3"></div>
+        </div>
 
-  <script src="script.js"></script>
+        <div class="controls">
+            <button onclick="changeBet(-10)">-10</button>
+            <button onclick="changeBet(10)">+10</button>
+            <button id="spinBtn" onclick="spin()">SPIN THE VOID</button>
+            <button onclick="toggleAutoSpin()">AUTO</button>
+        </div>
+
+        <div id="winMessage" class="win-message"></div>
+        <div class="history"><span id="historyText">Quantum field stable • Spin to begin</span></div>
+    </div>
+
+    <!-- Info Modal -->
+    <div id="infoModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h2>VOIDSPIN — Game Rules & Probabilities</h2>
+            <h3>Paytable & Symbols</h3>
+            <ul id="paytable"></ul>
+            
+            <h3>RNG & Mathematics</h3>
+            <p><strong>Theoretical RTP:</strong> 96.2% (long-term average return)</p>
+            <p><strong>Volatility:</strong> High — big swings, massive potential wins</p>
+            <p>Outcomes are generated with a weighted pseudo-random number generator (RNG). 
+               Quantum (⚛️) and Singularity (🌀) have lower base probability but higher multipliers.</p>
+            
+            <h3>Progressive Jackpot</h3>
+            <p>Triggered by landing 5 Quantum symbols. Jackpot grows with every bet placed.</p>
+            
+            <h3>How to Win</h3>
+            <p>3+ matching symbols anywhere pay. 5 Quantum = Jackpot + huge multiplier.</p>
+            <button onclick="closeModal()" class="modal-close-btn">CLOSE</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
 </body>
 </html>
